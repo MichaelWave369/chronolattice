@@ -1,0 +1,48 @@
+{
+  "run_id": "memory_orphan",
+  "seed": 369369,
+  "events": [
+    {
+      "event_id": "m1",
+      "timestamp": "2026-01-02T00:00:00Z",
+      "sequence_index": 1,
+      "actor": "node.a",
+      "event_type": "observe",
+      "spatial_ref": null,
+      "energy_delta": 0.1,
+      "information_value": 0.7,
+      "memory_refs": ["orphan_ref"],
+      "coherence": 0.81,
+      "payload_hash": "m1",
+      "provenance": {"lineage": "mline"}
+    },
+    {
+      "event_id": "m2",
+      "timestamp": "2026-01-02T00:00:03Z",
+      "sequence_index": 2,
+      "actor": "node.a",
+      "event_type": "observe",
+      "spatial_ref": null,
+      "energy_delta": 0.1,
+      "information_value": 0.72,
+      "memory_refs": ["shared_ref"],
+      "coherence": 0.8,
+      "payload_hash": "m2",
+      "provenance": {"lineage": "mline", "memory_source": "archive"}
+    },
+    {
+      "event_id": "m3",
+      "timestamp": "2026-01-02T00:00:06Z",
+      "sequence_index": 3,
+      "actor": "node.b",
+      "event_type": "correlate",
+      "spatial_ref": null,
+      "energy_delta": 0.2,
+      "information_value": 0.62,
+      "memory_refs": ["shared_ref"],
+      "coherence": 0.78,
+      "payload_hash": "m3",
+      "provenance": {"lineage": "mline", "memory_source": "archive"}
+    }
+  ]
+}
