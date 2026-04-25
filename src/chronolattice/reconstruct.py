@@ -11,7 +11,7 @@ from .hashing import stable_hash
 from .information import score_information
 from .memory import build_memory_edges, detect_memory_contradictions
 from .models import ChronoConfig, ChronoEvent, ChronoReconstruction
-from .profiles import apply_bridge_profile
+from .profiles import resolve_bridge_config
 
 
 def normalize_events(raw_events: list[ChronoEvent] | list[dict[str, Any]]) -> list[ChronoEvent]:
@@ -40,7 +40,7 @@ def normalize_events(raw_events: list[ChronoEvent] | list[dict[str, Any]]) -> li
 
 
 def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: ChronoConfig) -> ChronoReconstruction:
-    effective_config = apply_bridge_profile(config, config.bridge_profile)
+    effective_config = resolve_bridge_config(config)
     normalized_events = normalize_events(events)
     input_hash = stable_hash({"events": normalized_events, "seed": effective_config.seed})
     causal_edges = build_causal_edges(normalized_events, effective_config)
@@ -76,6 +76,13 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         "stable": stable,
         "seed": effective_config.seed,
         "bridge_profile": effective_config.bridge_profile,
+        "bridge_threshold_mode": effective_config.bridge_threshold_mode,
+        "bridge_thresholds": {
+            "bridge_gap_threshold": effective_config.bridge_gap_threshold,
+            "coherence_drop_threshold": effective_config.coherence_drop_threshold,
+            "energy_jump_threshold": effective_config.energy_jump_threshold,
+            "information_jump_threshold": effective_config.information_jump_threshold,
+        },
     }
     reconstruction_hash = stable_hash(payload)
     run_id = stable_hash({"input_hash": input_hash, "seed": effective_config.seed})[:16]
@@ -96,4 +103,11 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         stable=stable,
         seed=effective_config.seed,
         bridge_profile=effective_config.bridge_profile,
+        bridge_threshold_mode=effective_config.bridge_threshold_mode,
+        bridge_thresholds={
+            "bridge_gap_threshold": effective_config.bridge_gap_threshold,
+            "coherence_drop_threshold": effective_config.coherence_drop_threshold,
+            "energy_jump_threshold": effective_config.energy_jump_threshold,
+            "information_jump_threshold": effective_config.information_jump_threshold,
+        },
     )

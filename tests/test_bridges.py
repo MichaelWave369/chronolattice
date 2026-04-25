@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from chronolattice.adapters.phios import to_phios_payload
-from chronolattice.bridges import detect_bridge_gaps
 from chronolattice.cli import main
 from chronolattice.coherence import score_coherence
 from chronolattice.models import ChronoBridgeGap, ChronoConfig
@@ -118,12 +117,14 @@ def test_cli_bridge_gaps_command_outputs_list(tmp_path: Path, capsys):
     assert len(payload) >= 1
 
 
-def test_phios_payload_includes_bridge_gaps_and_profile():
+def test_phios_payload_includes_bridge_gaps_and_profile_mode_thresholds():
     data = _load("data/examples/missing_bridge_gap.json")
     result = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="sensitive"))
     payload = to_phios_payload(result)
     assert "bridge_gaps" in payload
     assert payload["field"]["bridge_profile"] == "sensitive"
+    assert payload["field"]["bridge_threshold_mode"] == "profile"
+    assert isinstance(payload["field"]["bridge_thresholds"], dict)
 
 
 def test_sensitive_profile_detects_at_least_as_many_gaps_as_conservative():
@@ -131,3 +132,44 @@ def test_sensitive_profile_detects_at_least_as_many_gaps_as_conservative():
     conservative = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="conservative"))
     sensitive = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="sensitive"))
     assert len(sensitive.bridge_gaps) >= len(conservative.bridge_gaps)
+
+
+def test_manual_mode_high_thresholds_detect_fewer_or_equal_gaps_than_sensitive():
+    data = _load("data/examples/missing_bridge_gap.json")
+    sensitive = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="sensitive"))
+    manual = reconstruct(
+        data["events"],
+        ChronoConfig(
+            seed=369369,
+            bridge_threshold_mode="manual",
+            bridge_gap_threshold=0.90,
+            coherence_drop_threshold=0.90,
+            energy_jump_threshold=0.90,
+            information_jump_threshold=0.90,
+        ),
+    )
+    assert len(manual.bridge_gaps) <= len(sensitive.bridge_gaps)
+
+
+def test_reconstruct_records_profile_and_manual_modes_and_thresholds():
+    data = _load("data/examples/missing_bridge_gap.json")
+    profile_result = reconstruct(data["events"], ChronoConfig(seed=369369))
+    manual_result = reconstruct(
+        data["events"],
+        ChronoConfig(
+            seed=369369,
+            bridge_threshold_mode="manual",
+            bridge_gap_threshold=0.75,
+            coherence_drop_threshold=0.30,
+            energy_jump_threshold=0.80,
+            information_jump_threshold=0.70,
+        ),
+    )
+    assert profile_result.bridge_threshold_mode == "profile"
+    assert manual_result.bridge_threshold_mode == "manual"
+    assert manual_result.bridge_thresholds == {
+        "bridge_gap_threshold": 0.75,
+        "coherence_drop_threshold": 0.3,
+        "energy_jump_threshold": 0.8,
+        "information_jump_threshold": 0.7,
+    }

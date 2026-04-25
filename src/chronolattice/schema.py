@@ -90,6 +90,17 @@ def validate_reconstruction_dict(data: dict) -> list[str]:
     if bridge_profile is not None and not isinstance(bridge_profile, str):
         errors.append("reconstruction.bridge_profile must be a string")
 
+    bridge_threshold_mode = data.get("bridge_threshold_mode")
+    if bridge_threshold_mode is not None:
+        if not isinstance(bridge_threshold_mode, str):
+            errors.append("reconstruction.bridge_threshold_mode must be a string")
+        elif bridge_threshold_mode not in {"profile", "manual"}:
+            errors.append("reconstruction.bridge_threshold_mode must be 'profile' or 'manual'")
+
+    bridge_thresholds = data.get("bridge_thresholds")
+    if bridge_thresholds is not None and not isinstance(bridge_thresholds, dict):
+        errors.append("reconstruction.bridge_thresholds must be an object")
+
     bridge_gaps = data.get("bridge_gaps")
     if bridge_gaps is not None:
         if not isinstance(bridge_gaps, list):

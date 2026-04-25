@@ -52,6 +52,9 @@ BRIDGE_PROFILE_PHI_GUARDIAN = BridgeProfile(
 )
 
 
+ALLOWED_THRESHOLD_MODES = {"profile", "manual"}
+
+
 def list_bridge_profiles() -> list[BridgeProfile]:
     return [
         BRIDGE_PROFILE_CONSERVATIVE,
@@ -80,3 +83,13 @@ def apply_bridge_profile(config: ChronoConfig, profile_name: str) -> ChronoConfi
         energy_jump_threshold=profile.energy_jump_threshold,
         information_jump_threshold=profile.information_jump_threshold,
     )
+
+
+def resolve_bridge_config(config: ChronoConfig) -> ChronoConfig:
+    mode = config.bridge_threshold_mode.lower()
+    if mode == "profile":
+        return apply_bridge_profile(config, config.bridge_profile)
+    if mode == "manual":
+        return replace(config, bridge_threshold_mode="manual")
+    allowed = ", ".join(sorted(ALLOWED_THRESHOLD_MODES))
+    raise ValueError(f"Invalid bridge_threshold_mode '{config.bridge_threshold_mode}'. Allowed values: {allowed}")

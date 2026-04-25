@@ -79,5 +79,7 @@ def to_phios_payload(reconstruction: ChronoReconstruction) -> dict:
             "stable": reconstruction.stable,
             "c_star": C_STAR,
             "bridge_profile": reconstruction.bridge_profile,
+            "bridge_threshold_mode": reconstruction.bridge_threshold_mode,
+            "bridge_thresholds": reconstruction.bridge_thresholds,
         },
     }

@@ -28,6 +28,8 @@ def reconstruction_to_dict(reconstruction: ChronoReconstruction) -> dict:
     payload = asdict(reconstruction)
     payload.setdefault("bridge_gaps", [])
     payload.setdefault("bridge_profile", "balanced")
+    payload.setdefault("bridge_threshold_mode", "profile")
+    payload.setdefault("bridge_thresholds", {})
     return wrap_artifact(ARTIFACT_KIND_RECONSTRUCTION, SCHEMA_VERSION, payload)
 
 
@@ -36,6 +38,8 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
     payload = dict(payload)
     payload.setdefault("bridge_gaps", [])
     payload.setdefault("bridge_profile", "balanced")
+    payload.setdefault("bridge_threshold_mode", "profile")
+    payload.setdefault("bridge_thresholds", {})
 
     errors = validate_reconstruction_dict(payload)
     _require_or_raise(errors, "reconstruction")
@@ -63,6 +67,8 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
         stable=payload["stable"],
         seed=payload["seed"],
         bridge_profile=payload.get("bridge_profile", "balanced"),
+        bridge_threshold_mode=payload.get("bridge_threshold_mode", "profile"),
+        bridge_thresholds=dict(payload.get("bridge_thresholds", {})),
     )
 
 

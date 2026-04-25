@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .constants import C_STAR, DEFAULT_SEED
 
@@ -12,6 +12,7 @@ class ChronoConfig:
     stability_threshold: float = C_STAR
     fixed_timestamp: str | None = None
     bridge_profile: str = "balanced"
+    bridge_threshold_mode: str = "profile"
     bridge_gap_threshold: float = 0.55
     coherence_drop_threshold: float = 0.20
     energy_jump_threshold: float = 0.60
@@ -103,6 +104,8 @@ class ChronoReconstruction:
     stable: bool
     seed: int
     bridge_profile: str = "balanced"
+    bridge_threshold_mode: str = "profile"
+    bridge_thresholds: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

@@ -87,3 +87,23 @@ chronolattice reconstruct data/examples/missing_bridge_gap.json \
   --bridge-profile sensitive \
   --out out/bridge_sensitive.json
 ```
+
+
+## Manual Bridge Threshold Mode
+ChronoLattice supports two threshold modes:
+- profile mode: use named calibration profiles
+- manual mode: use explicit threshold values
+
+```bash
+chronolattice reconstruct data/examples/missing_bridge_gap.json \
+  --bridge-profile sensitive \
+  --out out/bridge_sensitive.json
+
+chronolattice reconstruct data/examples/missing_bridge_gap.json \
+  --bridge-threshold-mode manual \
+  --bridge-gap-threshold 0.75 \
+  --coherence-drop-threshold 0.30 \
+  --energy-jump-threshold 0.80 \
+  --information-jump-threshold 0.70 \
+  --out out/bridge_manual.json
+```

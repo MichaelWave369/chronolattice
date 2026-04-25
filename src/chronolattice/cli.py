@@ -95,6 +95,11 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("path")
     r.add_argument("--seed", type=int, default=369369)
     r.add_argument("--bridge-profile", choices=["conservative", "balanced", "sensitive", "phi_guardian"], default="balanced")
+    r.add_argument("--bridge-threshold-mode", choices=["profile", "manual"], default="profile")
+    r.add_argument("--bridge-gap-threshold", type=float)
+    r.add_argument("--coherence-drop-threshold", type=float)
+    r.add_argument("--energy-jump-threshold", type=float)
+    r.add_argument("--information-jump-threshold", type=float)
     r.add_argument("--out", required=True)
 
     receipt = sub.add_parser("receipt")
@@ -153,7 +158,27 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.command == "reconstruct":
-        engine = ChronoLatticeEngine(ChronoConfig(seed=args.seed, bridge_profile=args.bridge_profile))
+        manual_values = [
+            args.bridge_gap_threshold,
+            args.coherence_drop_threshold,
+            args.energy_jump_threshold,
+            args.information_jump_threshold,
+        ]
+        manual_flags_used = any(v is not None for v in manual_values)
+        if args.bridge_threshold_mode == "profile" and manual_flags_used:
+            print("Manual threshold flags require --bridge-threshold-mode manual")
+            return 1
+
+        config = ChronoConfig(
+            seed=args.seed,
+            bridge_profile=args.bridge_profile,
+            bridge_threshold_mode=args.bridge_threshold_mode,
+            bridge_gap_threshold=args.bridge_gap_threshold if args.bridge_gap_threshold is not None else 0.55,
+            coherence_drop_threshold=args.coherence_drop_threshold if args.coherence_drop_threshold is not None else 0.20,
+            energy_jump_threshold=args.energy_jump_threshold if args.energy_jump_threshold is not None else 0.60,
+            information_jump_threshold=args.information_jump_threshold if args.information_jump_threshold is not None else 0.50,
+        )
+        engine = ChronoLatticeEngine(config)
         recon = engine.reconstruct_from_file(args.path)
         write_json(args.out, reconstruction_to_dict(recon))
         return 0
@@ -182,6 +207,8 @@ def main(argv: list[str] | None = None) -> int:
                     "coherence": reconstruction.coherence,
                     "stable": reconstruction.stable,
                     "bridge_profile": reconstruction.bridge_profile,
+                    "bridge_threshold_mode": reconstruction.bridge_threshold_mode,
+                    "bridge_thresholds": reconstruction.bridge_thresholds,
                 },
                 indent=2,
                 sort_keys=True,

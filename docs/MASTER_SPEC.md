@@ -57,3 +57,7 @@ Normalization wraps the payload but does not rewrite reconstruction meaning.
 ### Bridge Calibration Profiles
 Bridge gap detection supports named deterministic profiles (`conservative`, `balanced`, `sensitive`, `phi_guardian`) that set continuity thresholds without changing model semantics.
 Profiles allow controlled sensitivity tuning while preserving deterministic replayability.
+
+
+- Profile mode for common deterministic presets.
+- Manual mode for explicit operator threshold control.

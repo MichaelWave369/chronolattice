@@ -7,14 +7,14 @@ from .adapters.phios import to_phios_payload
 from .constants import DEFAULT_SEED
 from .models import ChronoConfig, ChronoEvent, ChronoReconstruction
 from .reconstruct import reconstruct
-from .profiles import apply_bridge_profile
+from .profiles import resolve_bridge_config
 from .receipts import emit_receipt
 
 
 class ChronoLatticeEngine:
     def __init__(self, config: ChronoConfig | None = None):
         base = config or ChronoConfig(seed=DEFAULT_SEED)
-        self.config = apply_bridge_profile(base, base.bridge_profile)
+        self.config = resolve_bridge_config(base)
 
     def reconstruct_from_file(self, path: str | Path) -> ChronoReconstruction:
         raw = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -27,6 +27,7 @@ class ChronoLatticeEngine:
             stability_threshold=self.config.stability_threshold,
             fixed_timestamp=self.config.fixed_timestamp,
             bridge_profile=self.config.bridge_profile,
+            bridge_threshold_mode=self.config.bridge_threshold_mode,
             bridge_gap_threshold=self.config.bridge_gap_threshold,
             coherence_drop_threshold=self.config.coherence_drop_threshold,
             energy_jump_threshold=self.config.energy_jump_threshold,
@@ -50,6 +51,8 @@ class ChronoLatticeEngine:
                 stable=recon.stable,
                 seed=recon.seed,
                 bridge_profile=recon.bridge_profile,
+                bridge_threshold_mode=recon.bridge_threshold_mode,
+                bridge_thresholds=recon.bridge_thresholds,
             )
         return recon
 

@@ -74,3 +74,12 @@ def test_validate_artifact_envelope_rejects_bad_kind():
     }
     errors = validate_artifact_envelope(data, ARTIFACT_KIND_RECONSTRUCTION)
     assert any("kind mismatch" in err for err in errors)
+
+
+def test_invalid_bridge_threshold_mode_returns_error():
+    data = json.loads(Path("data/examples/simple_timeline.json").read_text(encoding="utf-8"))
+    reconstruction = reconstruct(data["events"], ChronoConfig(seed=369369))
+    payload = reconstruction_to_dict(reconstruction)["payload"]
+    payload["bridge_threshold_mode"] = "invalid"
+    errors = validate_reconstruction_dict(payload)
+    assert any("bridge_threshold_mode" in err for err in errors)

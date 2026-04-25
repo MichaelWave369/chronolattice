@@ -46,3 +46,9 @@
   - Profile-aware CLI reconstruction
   - `bridge-profiles` command
   - Profile metadata in reconstruction/PhiOS payload
+
+- **v0.2.2 — Manual Bridge Threshold Overrides**
+  - `bridge_threshold_mode`
+  - Manual threshold CLI flags
+  - Effective threshold metadata in reconstruction/PhiOS payload
+  - Profile/manual resolution tests
