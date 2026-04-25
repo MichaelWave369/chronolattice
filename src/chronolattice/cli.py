@@ -1,59 +1,43 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
 import json
 from pathlib import Path
-from typing import Any
 
 from .adapters.phios import to_phios_payload
 from .constants import VERSION
 from .engine import ChronoLatticeEngine
-from .models import ChronoConfig, ChronoReconstruction
+from .models import ChronoConfig
+from .schema import validate_event_dict
+from .serialization import (
+    load_json,
+    receipt_to_dict,
+    reconstruction_from_dict,
+    reconstruction_to_dict,
+    write_json,
+)
 
 
-def _write_json(path: str | Path, payload: Any) -> None:
-    out = Path(path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-
-
-def _load_json(path: str | Path) -> dict:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
-
-
-def _load_reconstruction(path: str | Path) -> ChronoReconstruction:
-    data = _load_json(path)
-    return ChronoReconstruction(**data)
-
-
-def _validate_input(path: str | Path) -> tuple[bool, str]:
-    required = {"run_id", "events"}
-    event_required = {
-        "event_id",
-        "timestamp",
-        "sequence_index",
-        "actor",
-        "event_type",
-        "energy_delta",
-        "information_value",
-        "memory_refs",
-        "coherence",
-        "payload_hash",
-        "provenance",
-    }
+def _validate_input(path: str | Path) -> tuple[bool, list[str]]:
+    errors: list[str] = []
     try:
-        data = _load_json(path)
+        data = load_json(path)
     except Exception as exc:
-        return False, f"Invalid JSON: {exc}"
-    missing = required - set(data.keys())
-    if missing:
-        return False, f"Missing top-level fields: {sorted(missing)}"
-    for idx, ev in enumerate(data.get("events", [])):
-        m = event_required - set(ev.keys())
-        if m:
-            return False, f"Event index {idx} missing fields: {sorted(m)}"
-    return True, "ok"
+        return False, [f"Invalid JSON: {exc}"]
+
+    for field in ["run_id", "events"]:
+        if field not in data:
+            errors.append(f"input missing required field: {field}")
+
+    events = data.get("events")
+    if isinstance(events, list):
+        for idx, event in enumerate(events):
+            for err in validate_event_dict(event):
+                errors.append(f"events[{idx}]: {err}")
+    else:
+        errors.append("input.events must be a list")
+
+    return (len(errors) == 0), errors
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -93,42 +77,51 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "validate":
-        ok, msg = _validate_input(args.path)
-        print(msg)
-        return 0 if ok else 1
+        ok, errors = _validate_input(args.path)
+        if ok:
+            print("ok")
+            return 0
+        for err in errors:
+            print(err)
+        return 1
 
     if args.command == "reconstruct":
         engine = ChronoLatticeEngine(ChronoConfig(seed=args.seed))
         recon = engine.reconstruct_from_file(args.path)
-        _write_json(args.out, asdict(recon))
+        write_json(args.out, reconstruction_to_dict(recon))
         return 0
 
     if args.command == "receipt":
-        data = _load_json(args.reconstruction_path)
-        engine = ChronoLatticeEngine(ChronoConfig(seed=int(data.get("seed", 369369))))
-        recon = ChronoReconstruction(**data)
-        receipt = engine.emit_receipt(recon)
-        _write_json(args.out, asdict(receipt))
+        reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
+        engine = ChronoLatticeEngine(ChronoConfig(seed=reconstruction.seed))
+        receipt = engine.emit_receipt(reconstruction)
+        write_json(args.out, receipt_to_dict(receipt))
         return 0
 
     if args.command == "phios-payload":
-        recon = ChronoReconstruction(**_load_json(args.reconstruction_path))
-        _write_json(args.out, to_phios_payload(recon))
+        reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
+        write_json(args.out, to_phios_payload(reconstruction))
         return 0
 
     if args.command == "inspect":
-        data = _load_json(args.reconstruction_path)
-        print(json.dumps({
-            "run_id": data.get("run_id"),
-            "event_count": len(data.get("events", [])),
-            "coherence": data.get("coherence"),
-            "stable": data.get("stable"),
-        }, indent=2, sort_keys=True))
+        reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
+        print(
+            json.dumps(
+                {
+                    "run_id": reconstruction.run_id,
+                    "event_count": len(reconstruction.events),
+                    "coherence": reconstruction.coherence,
+                    "stable": reconstruction.stable,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
         return 0
 
     if args.command == "contradictions":
-        data = _load_json(args.reconstruction_path)
-        print(json.dumps(data.get("contradictions", []), indent=2, sort_keys=True))
+        reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
+        print(json.dumps([c.__dict__ for c in reconstruction.contradictions], indent=2, sort_keys=True))
         return 0
 
     return 1

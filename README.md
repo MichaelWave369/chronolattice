@@ -36,3 +36,10 @@ chronolattice reconstruct data/examples/simple_timeline.json --out out/reconstru
 
 ## Naming
 This layer uses **PhiCompute** for orchestration references. **PhiKernel** is reserved for lower-level sovereign substrate layers.
+
+
+## Deterministic JSON Round Trips
+Reconstruction outputs can be serialized to JSON, reloaded, and rehydrated into typed reconstruction models without losing structure.
+Receipts can also be round-tripped through JSON deterministically.
+Stable hashes protect replayability and auditability across runs.
+This hardening prepares clean handoffs for future PhiOS visualization and SCE/SML adapter integrations.
