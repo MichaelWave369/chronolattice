@@ -1,0 +1,34 @@
+{
+  "run_id": "causal_loop",
+  "seed": 369369,
+  "events": [
+    {
+      "event_id": "c1",
+      "timestamp": "2026-01-01T00:00:10Z",
+      "sequence_index": 1,
+      "actor": "node.a",
+      "event_type": "emit",
+      "spatial_ref": null,
+      "energy_delta": 0.1,
+      "information_value": 0.6,
+      "memory_refs": ["mc1"],
+      "coherence": 0.5,
+      "payload_hash": "c1",
+      "provenance": {"lineage": "cx"}
+    },
+    {
+      "event_id": "c2",
+      "timestamp": "2026-01-01T00:00:05Z",
+      "sequence_index": 2,
+      "actor": "node.b",
+      "event_type": "emit",
+      "spatial_ref": null,
+      "energy_delta": 0.2,
+      "information_value": 0.55,
+      "memory_refs": ["mc1"],
+      "coherence": 0.48,
+      "payload_hash": "c2",
+      "provenance": {"lineage": "cx"}
+    }
+  ]
+}
