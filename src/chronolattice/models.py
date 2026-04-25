@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from .constants import C_STAR, DEFAULT_SEED
 
@@ -11,6 +11,10 @@ class ChronoConfig:
     selected_model: str = "chronolattice.v0_1"
     stability_threshold: float = C_STAR
     fixed_timestamp: str | None = None
+    bridge_gap_threshold: float = 0.55
+    coherence_drop_threshold: float = 0.20
+    energy_jump_threshold: float = 0.60
+    information_jump_threshold: float = 0.50
 
 
 @dataclass(frozen=True)
@@ -69,6 +73,19 @@ class ChronoContradiction:
 
 
 @dataclass(frozen=True)
+class ChronoBridgeGap:
+    gap_id: str
+    source_event_id: str
+    target_event_id: str
+    gap_type: str
+    severity: str
+    score: float
+    missing_bridge_hint: str
+    evidence: dict[str, float | str | int | bool]
+    suggested_event_type: str | None
+
+
+@dataclass(frozen=True)
 class ChronoReconstruction:
     run_id: str
     input_hash: str
@@ -78,6 +95,7 @@ class ChronoReconstruction:
     memory_edges: list[MemoryEdge]
     geometry_edges: list[GeometryEdge]
     contradictions: list[ChronoContradiction]
+    bridge_gaps: list[ChronoBridgeGap]
     entropy_score: float
     information_score: float
     coherence: float

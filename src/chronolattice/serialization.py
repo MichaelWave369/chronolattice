@@ -5,13 +5,10 @@ import json
 from pathlib import Path
 
 from .compat import unwrap_artifact, wrap_artifact
-from .constants import (
-    ARTIFACT_KIND_RECEIPT,
-    ARTIFACT_KIND_RECONSTRUCTION,
-    SCHEMA_VERSION,
-)
+from .constants import ARTIFACT_KIND_RECEIPT, ARTIFACT_KIND_RECONSTRUCTION, SCHEMA_VERSION
 from .models import (
     CausalEdge,
+    ChronoBridgeGap,
     ChronoContradiction,
     ChronoEvent,
     ChronoReceipt,
@@ -29,11 +26,15 @@ def _require_or_raise(errors: list[str], context: str) -> None:
 
 def reconstruction_to_dict(reconstruction: ChronoReconstruction) -> dict:
     payload = asdict(reconstruction)
+    payload.setdefault("bridge_gaps", [])
     return wrap_artifact(ARTIFACT_KIND_RECONSTRUCTION, SCHEMA_VERSION, payload)
 
 
 def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
     payload = unwrap_artifact(dict(data), ARTIFACT_KIND_RECONSTRUCTION)
+    payload = dict(payload)
+    payload.setdefault("bridge_gaps", [])
+
     errors = validate_reconstruction_dict(payload)
     _require_or_raise(errors, "reconstruction")
 
@@ -42,6 +43,7 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
     memory_edges = [MemoryEdge(**dict(item)) for item in payload["memory_edges"]]
     geometry_edges = [GeometryEdge(**dict(item)) for item in payload["geometry_edges"]]
     contradictions = [ChronoContradiction(**dict(item)) for item in payload["contradictions"]]
+    bridge_gaps = [ChronoBridgeGap(**dict(item)) for item in payload.get("bridge_gaps", [])]
 
     return ChronoReconstruction(
         run_id=payload["run_id"],
@@ -52,6 +54,7 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
         memory_edges=memory_edges,
         geometry_edges=geometry_edges,
         contradictions=contradictions,
+        bridge_gaps=bridge_gaps,
         entropy_score=payload["entropy_score"],
         information_score=payload["information_score"],
         coherence=payload["coherence"],

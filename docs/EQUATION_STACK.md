@@ -30,3 +30,10 @@ Phase 2 introduces reverse reconstruction operators for backward consistency che
 
 ## Schema Stability Note
 Equations remain stable across v0.1.x while artifact schemas evolve with explicit versioned envelopes for compatibility.
+
+
+## Bridge Gap Term (v0.2 optional)
+`L_bridge` represents penalty for unexplained discontinuities between adjacent or strongly related events.
+
+Updated objective:
+`Θ* = arg min_Θ [ L_obs + αL_geometry + βL_causality + γL_entropy + δL_energy + εL_memory + ζL_info + ηL_coherence + κL_bridge ]`

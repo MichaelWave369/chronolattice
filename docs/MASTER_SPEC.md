@@ -45,3 +45,10 @@ Any future schema changes must include explicit migration tests.
 
 Legacy artifacts may be normalized into envelopes before migration.
 Normalization wraps the payload but does not rewrite reconstruction meaning.
+
+
+## Missing Bridge Event Detection
+- **Definition:** Identify probable missing transition events when adjacent or strongly related traces show unexplained discontinuity.
+- **Gap Types:** actor_discontinuity, memory_discontinuity, coherence_drop, energy_jump, information_jump, geometry_causal_tension, event_type_jump, provenance_gap.
+- **Scoring:** Deterministic per-gap score in [0,1] with threshold gating and severity classes for explainable penalties.
+- **Why this matters:** Supports reverse reconstruction by surfacing plausible bridge hypotheses without fabricating events.

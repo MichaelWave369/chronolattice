@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import Any
 
+from .bridges import detect_bridge_gaps
 from .causality import build_causal_edges, detect_causal_contradictions
 from .coherence import is_stable, score_coherence
-from .constants import DEFAULT_SEED
 from .entropy import score_entropy
 from .geometry import build_geometry_edges
 from .hashing import stable_hash
@@ -47,6 +46,7 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
     geometry_edges = build_geometry_edges(normalized_events, causal_edges, memory_edges, config)
     contradictions = detect_causal_contradictions(normalized_events, causal_edges)
     contradictions.extend(detect_memory_contradictions(normalized_events, memory_edges))
+    bridge_gaps = detect_bridge_gaps(normalized_events, causal_edges, memory_edges, geometry_edges, config)
     entropy_score = score_entropy(normalized_events)
     information_score = score_information(normalized_events)
     coherence = score_coherence(
@@ -57,6 +57,7 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         information_score,
         contradictions,
         config,
+        bridge_gaps=bridge_gaps,
     )
     stable = is_stable(coherence, config)
 
@@ -66,6 +67,7 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         "memory_edges": memory_edges,
         "geometry_edges": geometry_edges,
         "contradictions": contradictions,
+        "bridge_gaps": bridge_gaps,
         "entropy_score": entropy_score,
         "information_score": information_score,
         "coherence": coherence,
@@ -84,6 +86,7 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         memory_edges=memory_edges,
         geometry_edges=geometry_edges,
         contradictions=contradictions,
+        bridge_gaps=bridge_gaps,
         entropy_score=entropy_score,
         information_score=information_score,
         coherence=coherence,

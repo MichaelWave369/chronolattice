@@ -62,3 +62,12 @@ Legacy flat payloads remain load-compatible, but are not migration-addressable w
 Legacy flat reconstruction and receipt JSON files can be promoted into wrapped artifacts with `kind`, `schema_version`, and `payload`.
 Normalization does not alter payload content.
 This helps older outputs participate cleanly in migration-status, migration, and artifact protocol workflows.
+
+
+## Missing Bridge Event Detection
+ChronoLattice can identify likely missing transition events when the timeline jumps across actor, memory, coherence, energy, information, geometry, provenance, or event-type continuity.
+
+```bash
+chronolattice reconstruct data/examples/missing_bridge_gap.json --out out/bridge_reconstruction.json
+chronolattice bridge-gaps out/bridge_reconstruction.json
+```

@@ -107,6 +107,11 @@ def build_parser() -> argparse.ArgumentParser:
     contradictions = sub.add_parser("contradictions")
     contradictions.add_argument("reconstruction_path")
 
+    bridge_gaps = sub.add_parser("bridge-gaps")
+    bridge_gaps.add_argument("reconstruction_path")
+    bridge_gaps.add_argument("--severity", choices=["low", "medium", "high"])
+    bridge_gaps.add_argument("--type", dest="gap_type")
+
     migration_status = sub.add_parser("migration-status")
     migration_status.add_argument("path")
 
@@ -177,6 +182,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "contradictions":
         reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
         print(json.dumps([c.__dict__ for c in reconstruction.contradictions], indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "bridge-gaps":
+        reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
+        gaps = [g.__dict__ for g in reconstruction.bridge_gaps]
+        if args.severity:
+            gaps = [g for g in gaps if g["severity"] == args.severity]
+        if args.gap_type:
+            gaps = [g for g in gaps if g["gap_type"] == args.gap_type]
+        print(json.dumps(gaps, indent=2, sort_keys=True))
         return 0
 
     if args.command == "migration-status":

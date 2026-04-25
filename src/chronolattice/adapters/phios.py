@@ -43,10 +43,37 @@ def to_phios_payload(reconstruction: ChronoReconstruction) -> dict:
         }
         for e in reconstruction.geometry_edges
     )
+    edges.extend(
+        {
+            "kind": "bridge_gap",
+            "source": g.source_event_id,
+            "target": g.target_event_id,
+            "weight": g.score,
+            "gap_type": g.gap_type,
+            "severity": g.severity,
+        }
+        for g in reconstruction.bridge_gaps
+    )
+
+    bridge_gaps = [
+        {
+            "id": g.gap_id,
+            "source": g.source_event_id,
+            "target": g.target_event_id,
+            "type": g.gap_type,
+            "severity": g.severity,
+            "score": g.score,
+            "hint": g.missing_bridge_hint,
+            "suggested_event_type": g.suggested_event_type,
+        }
+        for g in reconstruction.bridge_gaps
+    ]
+
     return {
         "kind": "chronolattice.phios.payload.v0_1",
         "nodes": nodes,
         "edges": edges,
+        "bridge_gaps": bridge_gaps,
         "field": {
             "global_coherence": reconstruction.coherence,
             "stable": reconstruction.stable,

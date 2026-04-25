@@ -41,6 +41,21 @@ def validate_event_dict(data: dict) -> list[str]:
     return require_fields(data, required, "event")
 
 
+def validate_bridge_gap_dict(data: dict) -> list[str]:
+    required = [
+        "gap_id",
+        "source_event_id",
+        "target_event_id",
+        "gap_type",
+        "severity",
+        "score",
+        "missing_bridge_hint",
+        "evidence",
+        "suggested_event_type",
+    ]
+    return require_fields(data, required, "bridge_gap")
+
+
 def validate_reconstruction_dict(data: dict) -> list[str]:
     required = [
         "run_id",
@@ -69,6 +84,16 @@ def validate_reconstruction_dict(data: dict) -> list[str]:
     for idx, event in enumerate(events):
         for err in validate_event_dict(event):
             errors.append(f"reconstruction.events[{idx}]: {err}")
+
+    bridge_gaps = data.get("bridge_gaps")
+    if bridge_gaps is not None:
+        if not isinstance(bridge_gaps, list):
+            errors.append("reconstruction.bridge_gaps must be a list")
+        else:
+            for idx, gap in enumerate(bridge_gaps):
+                for err in validate_bridge_gap_dict(gap):
+                    errors.append(f"reconstruction.bridge_gaps[{idx}]: {err}")
+
     return errors
 
 

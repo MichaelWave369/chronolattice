@@ -33,3 +33,10 @@
   - Envelope normalization
   - `normalize-envelope` CLI command
   - Flat-to-wrapped artifact promotion
+
+- **v0.2.0 — Missing Bridge Event Detection**
+  - ChronoBridgeGap model
+  - Deterministic bridge gap detection
+  - Coherence penalty integration
+  - `bridge-gaps` CLI command
+  - PhiOS bridge gap payload support

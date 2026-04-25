@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 from .adapters.phios import to_phios_payload
 from .constants import DEFAULT_SEED
 from .models import ChronoConfig, ChronoEvent, ChronoReconstruction
-from .reconstruct import normalize_events, reconstruct
+from .reconstruct import reconstruct
 from .receipts import emit_receipt
 
 
@@ -20,7 +19,17 @@ class ChronoLatticeEngine:
         run_id = raw.get("run_id")
         seed = int(raw.get("seed", self.config.seed))
         events = raw.get("events", [])
-        recon = reconstruct(events, ChronoConfig(seed=seed, selected_model=self.config.selected_model, stability_threshold=self.config.stability_threshold, fixed_timestamp=self.config.fixed_timestamp))
+        config = ChronoConfig(
+            seed=seed,
+            selected_model=self.config.selected_model,
+            stability_threshold=self.config.stability_threshold,
+            fixed_timestamp=self.config.fixed_timestamp,
+            bridge_gap_threshold=self.config.bridge_gap_threshold,
+            coherence_drop_threshold=self.config.coherence_drop_threshold,
+            energy_jump_threshold=self.config.energy_jump_threshold,
+            information_jump_threshold=self.config.information_jump_threshold,
+        )
+        recon = reconstruct(events, config)
         if run_id:
             return ChronoReconstruction(
                 run_id=run_id,
@@ -31,6 +40,7 @@ class ChronoLatticeEngine:
                 memory_edges=recon.memory_edges,
                 geometry_edges=recon.geometry_edges,
                 contradictions=recon.contradictions,
+                bridge_gaps=recon.bridge_gaps,
                 entropy_score=recon.entropy_score,
                 information_score=recon.information_score,
                 coherence=recon.coherence,
