@@ -42,3 +42,6 @@ See `docs/ROADMAP.md`.
 ## Artifact Compatibility Note
 ChronoLattice artifacts should be treated as versioned protocol objects.
 Any future schema changes must include explicit migration tests.
+
+Legacy artifacts may be normalized into envelopes before migration.
+Normalization wraps the payload but does not rewrite reconstruction meaning.

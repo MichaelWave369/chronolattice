@@ -27,3 +27,9 @@
   - `migration-status` CLI command
   - Optional `migrate` CLI command
   - Future schema upgrade pathway
+
+- **v0.1.4 — Envelope Normalization**
+  - Legacy artifact kind detection
+  - Envelope normalization
+  - `normalize-envelope` CLI command
+  - Flat-to-wrapped artifact promotion

@@ -91,3 +91,11 @@ def validate_receipt_dict(data: dict) -> list[str]:
         "created_at",
     ]
     return require_fields(data, required, "receipt")
+
+
+def is_legacy_reconstruction_dict(data: dict) -> bool:
+    return validate_reconstruction_dict(data) == []
+
+
+def is_legacy_receipt_dict(data: dict) -> bool:
+    return validate_receipt_dict(data) == []

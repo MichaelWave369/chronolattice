@@ -56,3 +56,9 @@ v0.1.3 adds conservative migration utilities for future schema upgrades.
 No real migrations are required yet because the current schema version is `0.1`.
 Wrapped artifacts are migration-addressable via explicit envelopes.
 Legacy flat payloads remain load-compatible, but are not migration-addressable without an envelope.
+
+
+## Envelope Normalization
+Legacy flat reconstruction and receipt JSON files can be promoted into wrapped artifacts with `kind`, `schema_version`, and `payload`.
+Normalization does not alter payload content.
+This helps older outputs participate cleanly in migration-status, migration, and artifact protocol workflows.

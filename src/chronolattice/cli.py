@@ -15,6 +15,7 @@ from .constants import (
 )
 from .engine import ChronoLatticeEngine
 from .migrations import artifact_migration_status, migrate_artifact
+from .normalization import normalize_artifact_envelope
 from .models import ChronoConfig
 from .schema import (
     validate_artifact_envelope,
@@ -113,6 +114,11 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("path")
     migrate.add_argument("--out", required=True)
 
+    normalize = sub.add_parser("normalize-envelope")
+    normalize.add_argument("path")
+    normalize.add_argument("--out")
+    normalize.add_argument("--kind")
+
     return parser
 
 
@@ -191,6 +197,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Migration failed: {exc}")
             return 1
         write_json(args.out, migrated)
+        return 0
+
+    if args.command == "normalize-envelope":
+        try:
+            data = load_json(args.path)
+            normalized = normalize_artifact_envelope(data, kind=args.kind)
+        except Exception as exc:
+            print(f"Normalization failed: {exc}")
+            return 1
+
+        if args.out:
+            write_json(args.out, normalized)
+        else:
+            print(json.dumps(normalized, indent=2, sort_keys=True))
         return 0
 
     return 1
