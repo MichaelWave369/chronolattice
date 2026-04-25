@@ -52,3 +52,8 @@ Normalization wraps the payload but does not rewrite reconstruction meaning.
 - **Gap Types:** actor_discontinuity, memory_discontinuity, coherence_drop, energy_jump, information_jump, geometry_causal_tension, event_type_jump, provenance_gap.
 - **Scoring:** Deterministic per-gap score in [0,1] with threshold gating and severity classes for explainable penalties.
 - **Why this matters:** Supports reverse reconstruction by surfacing plausible bridge hypotheses without fabricating events.
+
+
+### Bridge Calibration Profiles
+Bridge gap detection supports named deterministic profiles (`conservative`, `balanced`, `sensitive`, `phi_guardian`) that set continuity thresholds without changing model semantics.
+Profiles allow controlled sensitivity tuning while preserving deterministic replayability.

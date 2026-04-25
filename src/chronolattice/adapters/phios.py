@@ -78,5 +78,6 @@ def to_phios_payload(reconstruction: ChronoReconstruction) -> dict:
             "global_coherence": reconstruction.coherence,
             "stable": reconstruction.stable,
             "c_star": C_STAR,
+            "bridge_profile": reconstruction.bridge_profile,
         },
     }

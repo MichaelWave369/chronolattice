@@ -11,6 +11,7 @@ from .hashing import stable_hash
 from .information import score_information
 from .memory import build_memory_edges, detect_memory_contradictions
 from .models import ChronoConfig, ChronoEvent, ChronoReconstruction
+from .profiles import apply_bridge_profile
 
 
 def normalize_events(raw_events: list[ChronoEvent] | list[dict[str, Any]]) -> list[ChronoEvent]:
@@ -39,14 +40,15 @@ def normalize_events(raw_events: list[ChronoEvent] | list[dict[str, Any]]) -> li
 
 
 def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: ChronoConfig) -> ChronoReconstruction:
+    effective_config = apply_bridge_profile(config, config.bridge_profile)
     normalized_events = normalize_events(events)
-    input_hash = stable_hash({"events": normalized_events, "seed": config.seed})
-    causal_edges = build_causal_edges(normalized_events, config)
-    memory_edges = build_memory_edges(normalized_events, config)
-    geometry_edges = build_geometry_edges(normalized_events, causal_edges, memory_edges, config)
+    input_hash = stable_hash({"events": normalized_events, "seed": effective_config.seed})
+    causal_edges = build_causal_edges(normalized_events, effective_config)
+    memory_edges = build_memory_edges(normalized_events, effective_config)
+    geometry_edges = build_geometry_edges(normalized_events, causal_edges, memory_edges, effective_config)
     contradictions = detect_causal_contradictions(normalized_events, causal_edges)
     contradictions.extend(detect_memory_contradictions(normalized_events, memory_edges))
-    bridge_gaps = detect_bridge_gaps(normalized_events, causal_edges, memory_edges, geometry_edges, config)
+    bridge_gaps = detect_bridge_gaps(normalized_events, causal_edges, memory_edges, geometry_edges, effective_config)
     entropy_score = score_entropy(normalized_events)
     information_score = score_information(normalized_events)
     coherence = score_coherence(
@@ -56,10 +58,10 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         entropy_score,
         information_score,
         contradictions,
-        config,
+        effective_config,
         bridge_gaps=bridge_gaps,
     )
-    stable = is_stable(coherence, config)
+    stable = is_stable(coherence, effective_config)
 
     payload = {
         "events": normalized_events,
@@ -72,10 +74,11 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         "information_score": information_score,
         "coherence": coherence,
         "stable": stable,
-        "seed": config.seed,
+        "seed": effective_config.seed,
+        "bridge_profile": effective_config.bridge_profile,
     }
     reconstruction_hash = stable_hash(payload)
-    run_id = stable_hash({"input_hash": input_hash, "seed": config.seed})[:16]
+    run_id = stable_hash({"input_hash": input_hash, "seed": effective_config.seed})[:16]
 
     return ChronoReconstruction(
         run_id=run_id,
@@ -91,5 +94,6 @@ def reconstruct(events: list[ChronoEvent] | list[dict[str, Any]], config: Chrono
         information_score=information_score,
         coherence=coherence,
         stable=stable,
-        seed=config.seed,
+        seed=effective_config.seed,
+        bridge_profile=effective_config.bridge_profile,
     )

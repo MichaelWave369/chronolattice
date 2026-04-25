@@ -138,3 +138,42 @@ def test_cli_migrate_copies_current_wrapped_artifact(tmp_path: Path):
     original = json.loads(reconstruction_path.read_text(encoding="utf-8"))
     migrated = json.loads(migrated_path.read_text(encoding="utf-8"))
     assert migrated == original
+
+
+def test_cli_reconstruct_writes_conservative_profile_metadata(tmp_path: Path):
+    out = tmp_path / "conservative.json"
+    code = main([
+        "reconstruct",
+        "data/examples/missing_bridge_gap.json",
+        "--bridge-profile",
+        "conservative",
+        "--out",
+        str(out),
+    ])
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert code == 0
+    assert payload["payload"]["bridge_profile"] == "conservative"
+
+
+def test_cli_reconstruct_writes_sensitive_profile_metadata(tmp_path: Path):
+    out = tmp_path / "sensitive.json"
+    code = main([
+        "reconstruct",
+        "data/examples/missing_bridge_gap.json",
+        "--bridge-profile",
+        "sensitive",
+        "--out",
+        str(out),
+    ])
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert code == 0
+    assert payload["payload"]["bridge_profile"] == "sensitive"
+
+
+def test_cli_bridge_profiles_lists_all_profiles(capsys):
+    code = main(["bridge-profiles"])
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+    names = [item["name"] for item in payload]
+    assert code == 0
+    assert names == ["conservative", "balanced", "sensitive", "phi_guardian"]

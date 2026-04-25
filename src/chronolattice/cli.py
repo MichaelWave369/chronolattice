@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from .constants import (
 from .engine import ChronoLatticeEngine
 from .migrations import artifact_migration_status, migrate_artifact
 from .normalization import normalize_artifact_envelope
+from .profiles import list_bridge_profiles
 from .models import ChronoConfig
 from .schema import (
     validate_artifact_envelope,
@@ -85,12 +87,14 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("version")
+    sub.add_parser("bridge-profiles")
     v = sub.add_parser("validate")
     v.add_argument("path")
 
     r = sub.add_parser("reconstruct")
     r.add_argument("path")
     r.add_argument("--seed", type=int, default=369369)
+    r.add_argument("--bridge-profile", choices=["conservative", "balanced", "sensitive", "phi_guardian"], default="balanced")
     r.add_argument("--out", required=True)
 
     receipt = sub.add_parser("receipt")
@@ -134,6 +138,11 @@ def main(argv: list[str] | None = None) -> int:
         print(VERSION)
         return 0
 
+    if args.command == "bridge-profiles":
+        profiles = [asdict(p) for p in list_bridge_profiles()]
+        print(json.dumps(profiles, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "validate":
         ok, errors = _validate_input(args.path)
         if ok:
@@ -144,7 +153,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.command == "reconstruct":
-        engine = ChronoLatticeEngine(ChronoConfig(seed=args.seed))
+        engine = ChronoLatticeEngine(ChronoConfig(seed=args.seed, bridge_profile=args.bridge_profile))
         recon = engine.reconstruct_from_file(args.path)
         write_json(args.out, reconstruction_to_dict(recon))
         return 0
@@ -172,6 +181,7 @@ def main(argv: list[str] | None = None) -> int:
                     "event_count": len(reconstruction.events),
                     "coherence": reconstruction.coherence,
                     "stable": reconstruction.stable,
+                    "bridge_profile": reconstruction.bridge_profile,
                 },
                 indent=2,
                 sort_keys=True,

@@ -85,6 +85,11 @@ def validate_reconstruction_dict(data: dict) -> list[str]:
         for err in validate_event_dict(event):
             errors.append(f"reconstruction.events[{idx}]: {err}")
 
+
+    bridge_profile = data.get("bridge_profile")
+    if bridge_profile is not None and not isinstance(bridge_profile, str):
+        errors.append("reconstruction.bridge_profile must be a string")
+
     bridge_gaps = data.get("bridge_gaps")
     if bridge_gaps is not None:
         if not isinstance(bridge_gaps, list):

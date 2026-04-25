@@ -118,8 +118,16 @@ def test_cli_bridge_gaps_command_outputs_list(tmp_path: Path, capsys):
     assert len(payload) >= 1
 
 
-def test_phios_payload_includes_bridge_gaps():
+def test_phios_payload_includes_bridge_gaps_and_profile():
     data = _load("data/examples/missing_bridge_gap.json")
-    result = reconstruct(data["events"], ChronoConfig(seed=369369))
+    result = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="sensitive"))
     payload = to_phios_payload(result)
     assert "bridge_gaps" in payload
+    assert payload["field"]["bridge_profile"] == "sensitive"
+
+
+def test_sensitive_profile_detects_at_least_as_many_gaps_as_conservative():
+    data = _load("data/examples/missing_bridge_gap.json")
+    conservative = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="conservative"))
+    sensitive = reconstruct(data["events"], ChronoConfig(seed=369369, bridge_profile="sensitive"))
+    assert len(sensitive.bridge_gaps) >= len(conservative.bridge_gaps)

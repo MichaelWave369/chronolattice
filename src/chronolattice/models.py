@@ -11,6 +11,7 @@ class ChronoConfig:
     selected_model: str = "chronolattice.v0_1"
     stability_threshold: float = C_STAR
     fixed_timestamp: str | None = None
+    bridge_profile: str = "balanced"
     bridge_gap_threshold: float = 0.55
     coherence_drop_threshold: float = 0.20
     energy_jump_threshold: float = 0.60
@@ -101,6 +102,7 @@ class ChronoReconstruction:
     coherence: float
     stable: bool
     seed: int
+    bridge_profile: str = "balanced"
 
 
 @dataclass(frozen=True)

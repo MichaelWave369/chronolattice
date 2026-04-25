@@ -71,3 +71,19 @@ ChronoLattice can identify likely missing transition events when the timeline ju
 chronolattice reconstruct data/examples/missing_bridge_gap.json --out out/bridge_reconstruction.json
 chronolattice bridge-gaps out/bridge_reconstruction.json
 ```
+
+
+## Bridge Gap Calibration Profiles
+ChronoLattice bridge detection supports deterministic threshold profiles:
+- conservative — fewer bridge gaps, higher confidence
+- balanced — default v0.2 behavior
+- sensitive — more exploratory, catches smaller discontinuities
+- phi_guardian — PHI/LAMBDA-inspired thresholds for PHI369 workflows
+
+```bash
+chronolattice bridge-profiles
+
+chronolattice reconstruct data/examples/missing_bridge_gap.json \
+  --bridge-profile sensitive \
+  --out out/bridge_sensitive.json
+```

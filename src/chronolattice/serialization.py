@@ -27,6 +27,7 @@ def _require_or_raise(errors: list[str], context: str) -> None:
 def reconstruction_to_dict(reconstruction: ChronoReconstruction) -> dict:
     payload = asdict(reconstruction)
     payload.setdefault("bridge_gaps", [])
+    payload.setdefault("bridge_profile", "balanced")
     return wrap_artifact(ARTIFACT_KIND_RECONSTRUCTION, SCHEMA_VERSION, payload)
 
 
@@ -34,6 +35,7 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
     payload = unwrap_artifact(dict(data), ARTIFACT_KIND_RECONSTRUCTION)
     payload = dict(payload)
     payload.setdefault("bridge_gaps", [])
+    payload.setdefault("bridge_profile", "balanced")
 
     errors = validate_reconstruction_dict(payload)
     _require_or_raise(errors, "reconstruction")
@@ -60,6 +62,7 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
         coherence=payload["coherence"],
         stable=payload["stable"],
         seed=payload["seed"],
+        bridge_profile=payload.get("bridge_profile", "balanced"),
     )
 
 

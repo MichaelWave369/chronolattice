@@ -40,3 +40,9 @@
   - Coherence penalty integration
   - `bridge-gaps` CLI command
   - PhiOS bridge gap payload support
+
+- **v0.2.1 — Bridge Calibration Profiles**
+  - Bridge calibration profiles
+  - Profile-aware CLI reconstruction
+  - `bridge-profiles` command
+  - Profile metadata in reconstruction/PhiOS payload

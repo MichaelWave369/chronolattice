@@ -48,3 +48,13 @@ def test_reconstruction_from_legacy_flat_dict():
 
     restored = reconstruction_from_dict(legacy_payload)
     assert stable_hash(original) == stable_hash(restored)
+
+
+def test_reconstruction_from_legacy_defaults_bridge_profile_balanced():
+    data = json.loads(Path("data/examples/simple_timeline.json").read_text(encoding="utf-8"))
+    original = reconstruct(data["events"], ChronoConfig(seed=369369))
+    legacy_payload = dict(reconstruction_to_dict(original)["payload"])
+    legacy_payload.pop("bridge_profile", None)
+
+    restored = reconstruction_from_dict(legacy_payload)
+    assert restored.bridge_profile == "balanced"
