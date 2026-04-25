@@ -1,0 +1,75 @@
+{
+  "run_id": "simple_timeline",
+  "seed": 369369,
+  "events": [
+    {
+      "event_id": "e1",
+      "timestamp": "2026-01-01T00:00:00Z",
+      "sequence_index": 1,
+      "actor": "sensor.alpha",
+      "event_type": "observe",
+      "spatial_ref": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "energy_delta": 0.1,
+      "information_value": 0.95,
+      "memory_refs": [
+        "m_core"
+      ],
+      "coherence": 0.92,
+      "payload_hash": "h_e1",
+      "provenance": {
+        "lineage": "l1",
+        "memory_source": "archive.a"
+      }
+    },
+    {
+      "event_id": "e2",
+      "timestamp": "2026-01-01T00:00:03Z",
+      "sequence_index": 2,
+      "actor": "sensor.alpha",
+      "event_type": "observe",
+      "spatial_ref": {
+        "x": 0.2,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "energy_delta": 0.2,
+      "information_value": 0.95,
+      "memory_refs": [
+        "m_core"
+      ],
+      "coherence": 0.9,
+      "payload_hash": "h_e2",
+      "provenance": {
+        "lineage": "l1",
+        "memory_source": "archive.a"
+      }
+    },
+    {
+      "event_id": "e3",
+      "timestamp": "2026-01-01T00:00:07Z",
+      "sequence_index": 3,
+      "actor": "sensor.alpha",
+      "event_type": "observe",
+      "spatial_ref": {
+        "x": 0.8,
+        "y": 0.1,
+        "z": 0.0
+      },
+      "energy_delta": 0.15,
+      "information_value": 0.95,
+      "memory_refs": [
+        "m_core"
+      ],
+      "coherence": 0.88,
+      "payload_hash": "h_e3",
+      "provenance": {
+        "lineage": "l2",
+        "memory_source": "archive.b"
+      }
+    }
+  ]
+}
