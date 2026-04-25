@@ -1,0 +1,48 @@
+{
+  "run_id": "coherence_collapse",
+  "seed": 369369,
+  "events": [
+    {
+      "event_id": "k1",
+      "timestamp": "2026-01-03T00:00:06Z",
+      "sequence_index": 1,
+      "actor": "a",
+      "event_type": "emit",
+      "spatial_ref": null,
+      "energy_delta": 0.9,
+      "information_value": 0.1,
+      "memory_refs": ["x1"],
+      "coherence": 0.05,
+      "payload_hash": "k1",
+      "provenance": {"lineage": "c"}
+    },
+    {
+      "event_id": "k2",
+      "timestamp": "2026-01-03T00:00:03Z",
+      "sequence_index": 2,
+      "actor": "b",
+      "event_type": "fracture",
+      "spatial_ref": null,
+      "energy_delta": 1.2,
+      "information_value": 0.05,
+      "memory_refs": ["x2"],
+      "coherence": 0.02,
+      "payload_hash": "k2",
+      "provenance": {"lineage": "c"}
+    },
+    {
+      "event_id": "k3",
+      "timestamp": "2026-01-03T00:00:01Z",
+      "sequence_index": 3,
+      "actor": "c",
+      "event_type": "fracture",
+      "spatial_ref": null,
+      "energy_delta": 1.5,
+      "information_value": 0.0,
+      "memory_refs": ["x3"],
+      "coherence": 0.01,
+      "payload_hash": "k3",
+      "provenance": {"lineage": "c"}
+    }
+  ]
+}
