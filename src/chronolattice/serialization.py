@@ -3,8 +3,13 @@ from __future__ import annotations
 from dataclasses import asdict
 import json
 from pathlib import Path
-from typing import Any
 
+from .compat import unwrap_artifact, wrap_artifact
+from .constants import (
+    ARTIFACT_KIND_RECEIPT,
+    ARTIFACT_KIND_RECONSTRUCTION,
+    SCHEMA_VERSION,
+)
 from .models import (
     CausalEdge,
     ChronoContradiction,
@@ -23,11 +28,12 @@ def _require_or_raise(errors: list[str], context: str) -> None:
 
 
 def reconstruction_to_dict(reconstruction: ChronoReconstruction) -> dict:
-    return asdict(reconstruction)
+    payload = asdict(reconstruction)
+    return wrap_artifact(ARTIFACT_KIND_RECONSTRUCTION, SCHEMA_VERSION, payload)
 
 
 def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
-    payload = dict(data)
+    payload = unwrap_artifact(dict(data), ARTIFACT_KIND_RECONSTRUCTION)
     errors = validate_reconstruction_dict(payload)
     _require_or_raise(errors, "reconstruction")
 
@@ -55,11 +61,12 @@ def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
 
 
 def receipt_to_dict(receipt: ChronoReceipt) -> dict:
-    return asdict(receipt)
+    payload = asdict(receipt)
+    return wrap_artifact(ARTIFACT_KIND_RECEIPT, SCHEMA_VERSION, payload)
 
 
 def receipt_from_dict(data: dict) -> ChronoReceipt:
-    payload = dict(data)
+    payload = unwrap_artifact(dict(data), ARTIFACT_KIND_RECEIPT)
     errors = validate_receipt_dict(payload)
     _require_or_raise(errors, "receipt")
     return ChronoReceipt(**payload)

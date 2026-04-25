@@ -1,9 +1,11 @@
 import json
 from pathlib import Path
 
+from chronolattice.constants import ARTIFACT_KIND_RECEIPT, ARTIFACT_KIND_RECONSTRUCTION
 from chronolattice.models import ChronoConfig
 from chronolattice.reconstruct import reconstruct
 from chronolattice.schema import (
+    validate_artifact_envelope,
     validate_event_dict,
     validate_receipt_dict,
     validate_reconstruction_dict,
@@ -28,7 +30,7 @@ def test_missing_event_id_returns_error():
 def test_missing_reconstruction_hash_returns_error():
     data = json.loads(Path("data/examples/simple_timeline.json").read_text(encoding="utf-8"))
     reconstruction = reconstruct(data["events"], ChronoConfig(seed=369369))
-    payload = reconstruction_to_dict(reconstruction)
+    payload = reconstruction_to_dict(reconstruction)["payload"]
     payload.pop("reconstruction_hash")
     errors = validate_reconstruction_dict(payload)
     assert any("reconstruction_hash" in err for err in errors)
@@ -53,3 +55,22 @@ def test_missing_receipt_id_returns_error():
     }
     errors = validate_receipt_dict(receipt)
     assert any("receipt_id" in err for err in errors)
+
+
+def test_validate_artifact_envelope_accepts_valid_reconstruction_wrapper():
+    data = {
+        "kind": ARTIFACT_KIND_RECONSTRUCTION,
+        "schema_version": "0.1",
+        "payload": {"run_id": "x"},
+    }
+    assert validate_artifact_envelope(data, ARTIFACT_KIND_RECONSTRUCTION) == []
+
+
+def test_validate_artifact_envelope_rejects_bad_kind():
+    data = {
+        "kind": ARTIFACT_KIND_RECEIPT,
+        "schema_version": "0.1",
+        "payload": {"run_id": "x"},
+    }
+    errors = validate_artifact_envelope(data, ARTIFACT_KIND_RECONSTRUCTION)
+    assert any("kind mismatch" in err for err in errors)

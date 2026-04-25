@@ -1,11 +1,26 @@
 from __future__ import annotations
 
+from .compat import is_supported_schema_version
+
 
 def require_fields(data: dict, fields: list[str], context: str) -> list[str]:
     if not isinstance(data, dict):
         return [f"{context} must be an object."]
     missing = [name for name in fields if name not in data]
     return [f"{context} missing required field: {name}" for name in missing]
+
+
+def validate_artifact_envelope(data: dict, expected_kind: str) -> list[str]:
+    errors = require_fields(data, ["kind", "schema_version", "payload"], "artifact")
+    if errors:
+        return errors
+    if data.get("kind") != expected_kind:
+        errors.append(f"artifact kind mismatch: expected {expected_kind}")
+    if not is_supported_schema_version(data.get("schema_version")):
+        errors.append(f"artifact unsupported schema_version: {data.get('schema_version')}")
+    if not isinstance(data.get("payload"), dict):
+        errors.append("artifact payload must be an object")
+    return errors
 
 
 def validate_event_dict(data: dict) -> list[str]:

@@ -5,10 +5,22 @@ import json
 from pathlib import Path
 
 from .adapters.phios import to_phios_payload
-from .constants import VERSION
+from .compat import wrap_artifact
+from .constants import (
+    ARTIFACT_KIND_PHIOS_PAYLOAD,
+    ARTIFACT_KIND_RECEIPT,
+    ARTIFACT_KIND_RECONSTRUCTION,
+    SCHEMA_VERSION,
+    VERSION,
+)
 from .engine import ChronoLatticeEngine
 from .models import ChronoConfig
-from .schema import validate_event_dict
+from .schema import (
+    validate_artifact_envelope,
+    validate_event_dict,
+    validate_receipt_dict,
+    validate_reconstruction_dict,
+)
 from .serialization import (
     load_json,
     receipt_to_dict,
@@ -25,19 +37,46 @@ def _validate_input(path: str | Path) -> tuple[bool, list[str]]:
     except Exception as exc:
         return False, [f"Invalid JSON: {exc}"]
 
-    for field in ["run_id", "events"]:
-        if field not in data:
-            errors.append(f"input missing required field: {field}")
+    # raw event input shape
+    if "events" in data and "run_id" in data and "kind" not in data:
+        events = data.get("events")
+        if isinstance(events, list):
+            for idx, event in enumerate(events):
+                for err in validate_event_dict(event):
+                    errors.append(f"events[{idx}]: {err}")
+        else:
+            errors.append("input.events must be a list")
+        return (len(errors) == 0), errors
 
-    events = data.get("events")
-    if isinstance(events, list):
-        for idx, event in enumerate(events):
-            for err in validate_event_dict(event):
-                errors.append(f"events[{idx}]: {err}")
-    else:
-        errors.append("input.events must be a list")
+    # wrapped reconstruction
+    if data.get("kind") == ARTIFACT_KIND_RECONSTRUCTION:
+        errors.extend(validate_artifact_envelope(data, ARTIFACT_KIND_RECONSTRUCTION))
+        if not errors:
+            errors.extend(validate_reconstruction_dict(data["payload"]))
+        return (len(errors) == 0), errors
 
-    return (len(errors) == 0), errors
+    # wrapped receipt
+    if data.get("kind") == ARTIFACT_KIND_RECEIPT:
+        errors.extend(validate_artifact_envelope(data, ARTIFACT_KIND_RECEIPT))
+        if not errors:
+            errors.extend(validate_receipt_dict(data["payload"]))
+        return (len(errors) == 0), errors
+
+    # legacy flat reconstruction
+    reconstruction_errors = validate_reconstruction_dict(data)
+    if not reconstruction_errors:
+        return True, []
+
+    # legacy flat receipt
+    receipt_errors = validate_receipt_dict(data)
+    if not receipt_errors:
+        return True, []
+
+    # unknown shape fallback
+    errors.extend(["Unknown artifact shape."])
+    errors.extend([f"reconstruction: {err}" for err in reconstruction_errors])
+    errors.extend([f"receipt: {err}" for err in receipt_errors])
+    return False, errors
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -100,7 +139,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "phios-payload":
         reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
-        write_json(args.out, to_phios_payload(reconstruction))
+        phios_payload = to_phios_payload(reconstruction)
+        wrapped = wrap_artifact(ARTIFACT_KIND_PHIOS_PAYLOAD, SCHEMA_VERSION, phios_payload)
+        write_json(args.out, wrapped)
         return 0
 
     if args.command == "inspect":

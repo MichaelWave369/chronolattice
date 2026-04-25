@@ -15,3 +15,9 @@
 - **Phase 3 — PhiOS Visualization**
 - **Phase 4 — SCE/SML Adapters**
 - **Phase 5 — Simulation & Prediction**
+
+- **v0.1.2 — Artifact Compatibility**
+  - Typed artifact envelopes
+  - Schema version compatibility checks
+  - Legacy flat payload loading
+  - Wrapped CLI output

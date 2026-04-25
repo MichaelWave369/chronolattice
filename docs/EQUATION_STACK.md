@@ -26,3 +26,7 @@ Global coherence is a weighted blend of causal, memory, geometry, entropy, infor
 
 ## Reverse Reconstruction (Placeholder)
 Phase 2 introduces reverse reconstruction operators for backward consistency checks and branch hypothesis search.
+
+
+## Schema Stability Note
+Equations remain stable across v0.1.x while artifact schemas evolve with explicit versioned envelopes for compatibility.

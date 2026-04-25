@@ -2,6 +2,11 @@ import json
 from pathlib import Path
 
 from chronolattice.cli import main
+from chronolattice.constants import (
+    ARTIFACT_KIND_PHIOS_PAYLOAD,
+    ARTIFACT_KIND_RECEIPT,
+    ARTIFACT_KIND_RECONSTRUCTION,
+)
 
 
 def test_cli_version_exits_zero(capsys):
@@ -23,6 +28,8 @@ def test_cli_reconstruct_writes_output(tmp_path: Path):
     ])
     assert code == 0
     assert out.exists()
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["kind"] == ARTIFACT_KIND_RECONSTRUCTION
 
 
 def test_cli_receipt_flow(tmp_path: Path):
@@ -50,5 +57,47 @@ def test_cli_receipt_flow(tmp_path: Path):
     assert receipt_path.exists()
 
     receipt_data = json.loads(receipt_path.read_text(encoding="utf-8"))
-    assert "receipt_id" in receipt_data
-    assert "reconstruction_hash" in receipt_data
+    assert receipt_data["kind"] == ARTIFACT_KIND_RECEIPT
+    assert "receipt_id" in receipt_data["payload"]
+    assert "reconstruction_hash" in receipt_data["payload"]
+
+
+def test_cli_phios_payload_wrapped(tmp_path: Path):
+    reconstruction_path = tmp_path / "reconstruction.json"
+    phios_path = tmp_path / "phios.json"
+    main([
+        "reconstruct",
+        "data/examples/simple_timeline.json",
+        "--out",
+        str(reconstruction_path),
+    ])
+
+    code = main([
+        "phios-payload",
+        str(reconstruction_path),
+        "--out",
+        str(phios_path),
+    ])
+    assert code == 0
+    payload = json.loads(phios_path.read_text(encoding="utf-8"))
+    assert payload["kind"] == ARTIFACT_KIND_PHIOS_PAYLOAD
+
+
+def test_cli_inspect_and_contradictions_support_wrapped_reconstruction(tmp_path: Path, capsys):
+    reconstruction_path = tmp_path / "reconstruction.json"
+    main([
+        "reconstruct",
+        "data/examples/simple_timeline.json",
+        "--out",
+        str(reconstruction_path),
+    ])
+
+    inspect_code = main(["inspect", str(reconstruction_path)])
+    inspect_out = capsys.readouterr().out
+    contradictions_code = main(["contradictions", str(reconstruction_path)])
+    contradictions_out = capsys.readouterr().out
+
+    assert inspect_code == 0
+    assert contradictions_code == 0
+    assert "coherence" in inspect_out
+    assert contradictions_out.strip().startswith("[")

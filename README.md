@@ -43,3 +43,9 @@ Reconstruction outputs can be serialized to JSON, reloaded, and rehydrated into 
 Receipts can also be round-tripped through JSON deterministically.
 Stable hashes protect replayability and auditability across runs.
 This hardening prepares clean handoffs for future PhiOS visualization and SCE/SML adapter integrations.
+
+
+## Artifact Compatibility
+Reconstruction, receipt, and PhiOS payload files now use typed envelopes with `kind`, `schema_version`, and `payload`.
+Legacy flat v0.1.1 reconstruction/receipt payloads still load for backwards compatibility.
+Schema versioning prepares ChronoLattice for deterministic migrations across future releases.
