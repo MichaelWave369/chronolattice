@@ -37,3 +37,8 @@ ChronoLattice v0.1 is a deterministic reconstruction framework that converts eve
 
 ## Roadmap
 See `docs/ROADMAP.md`.
+
+
+## Artifact Compatibility Note
+ChronoLattice artifacts should be treated as versioned protocol objects.
+Any future schema changes must include explicit migration tests.

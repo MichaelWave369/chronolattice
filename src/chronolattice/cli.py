@@ -14,6 +14,7 @@ from .constants import (
     VERSION,
 )
 from .engine import ChronoLatticeEngine
+from .migrations import artifact_migration_status, migrate_artifact
 from .models import ChronoConfig
 from .schema import (
     validate_artifact_envelope,
@@ -72,7 +73,6 @@ def _validate_input(path: str | Path) -> tuple[bool, list[str]]:
     if not receipt_errors:
         return True, []
 
-    # unknown shape fallback
     errors.extend(["Unknown artifact shape."])
     errors.extend([f"reconstruction: {err}" for err in reconstruction_errors])
     errors.extend([f"receipt: {err}" for err in receipt_errors])
@@ -105,6 +105,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     contradictions = sub.add_parser("contradictions")
     contradictions.add_argument("reconstruction_path")
+
+    migration_status = sub.add_parser("migration-status")
+    migration_status.add_argument("path")
+
+    migrate = sub.add_parser("migrate")
+    migrate.add_argument("path")
+    migrate.add_argument("--out", required=True)
+
     return parser
 
 
@@ -163,6 +171,26 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "contradictions":
         reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
         print(json.dumps([c.__dict__ for c in reconstruction.contradictions], indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "migration-status":
+        try:
+            data = load_json(args.path)
+        except Exception as exc:
+            print(f"Invalid JSON: {exc}")
+            return 1
+        status = artifact_migration_status(data)
+        print(json.dumps(status, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "migrate":
+        try:
+            data = load_json(args.path)
+            migrated = migrate_artifact(data)
+        except Exception as exc:
+            print(f"Migration failed: {exc}")
+            return 1
+        write_json(args.out, migrated)
         return 0
 
     return 1

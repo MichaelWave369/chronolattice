@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from .constants import SCHEMA_VERSION
-
-_SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION}
+from .constants import SUPPORTED_SCHEMA_VERSIONS
 
 
 def is_supported_schema_version(version: str) -> bool:
-    return version in _SUPPORTED_SCHEMA_VERSIONS
+    return version in SUPPORTED_SCHEMA_VERSIONS
 
 
 def wrap_artifact(kind: str, schema_version: str, payload: dict) -> dict:

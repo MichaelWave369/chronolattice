@@ -11,3 +11,4 @@ ARTIFACT_KIND_RECONSTRUCTION = "chronolattice.reconstruction"
 ARTIFACT_KIND_RECEIPT = "chronolattice.receipt"
 ARTIFACT_KIND_PHIOS_PAYLOAD = "chronolattice.phios.payload"
 SCHEMA_VERSION = "0.1"
+SUPPORTED_SCHEMA_VERSIONS = ("0.1",)

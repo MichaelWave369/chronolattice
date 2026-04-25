@@ -21,3 +21,9 @@
   - Schema version compatibility checks
   - Legacy flat payload loading
   - Wrapped CLI output
+
+- **v0.1.3 — Migration Readiness**
+  - Migration utility stubs
+  - `migration-status` CLI command
+  - Optional `migrate` CLI command
+  - Future schema upgrade pathway

@@ -49,3 +49,10 @@ This hardening prepares clean handoffs for future PhiOS visualization and SCE/SM
 Reconstruction, receipt, and PhiOS payload files now use typed envelopes with `kind`, `schema_version`, and `payload`.
 Legacy flat v0.1.1 reconstruction/receipt payloads still load for backwards compatibility.
 Schema versioning prepares ChronoLattice for deterministic migrations across future releases.
+
+
+## Schema Migration Readiness
+v0.1.3 adds conservative migration utilities for future schema upgrades.
+No real migrations are required yet because the current schema version is `0.1`.
+Wrapped artifacts are migration-addressable via explicit envelopes.
+Legacy flat payloads remain load-compatible, but are not migration-addressable without an envelope.

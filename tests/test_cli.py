@@ -101,3 +101,40 @@ def test_cli_inspect_and_contradictions_support_wrapped_reconstruction(tmp_path:
     assert contradictions_code == 0
     assert "coherence" in inspect_out
     assert contradictions_out.strip().startswith("[")
+
+
+def test_cli_migration_status_on_wrapped_reconstruction(tmp_path: Path, capsys):
+    reconstruction_path = tmp_path / "reconstruction.json"
+    main([
+        "reconstruct",
+        "data/examples/simple_timeline.json",
+        "--out",
+        str(reconstruction_path),
+    ])
+
+    code = main(["migration-status", str(reconstruction_path)])
+    out = capsys.readouterr().out
+    payload = json.loads(out)
+
+    assert code == 0
+    assert payload["supported"] is True
+    assert payload["needs_migration"] is False
+
+
+def test_cli_migrate_copies_current_wrapped_artifact(tmp_path: Path):
+    reconstruction_path = tmp_path / "reconstruction.json"
+    migrated_path = tmp_path / "reconstruction_migrated.json"
+    main([
+        "reconstruct",
+        "data/examples/simple_timeline.json",
+        "--out",
+        str(reconstruction_path),
+    ])
+
+    code = main(["migrate", str(reconstruction_path), "--out", str(migrated_path)])
+    assert code == 0
+    assert migrated_path.exists()
+
+    original = json.loads(reconstruction_path.read_text(encoding="utf-8"))
+    migrated = json.loads(migrated_path.read_text(encoding="utf-8"))
+    assert migrated == original
