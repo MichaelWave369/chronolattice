@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+from dataclasses import asdict
+import json
+from pathlib import Path
+from typing import Any
+
+from .models import (
+    CausalEdge,
+    ChronoContradiction,
+    ChronoEvent,
+    ChronoReceipt,
+    ChronoReconstruction,
+    GeometryEdge,
+    MemoryEdge,
+)
+from .schema import validate_receipt_dict, validate_reconstruction_dict
+
+
+def _require_or_raise(errors: list[str], context: str) -> None:
+    if errors:
+        raise ValueError(f"Invalid {context}: " + "; ".join(errors))
+
+
+def reconstruction_to_dict(reconstruction: ChronoReconstruction) -> dict:
+    return asdict(reconstruction)
+
+
+def reconstruction_from_dict(data: dict) -> ChronoReconstruction:
+    payload = dict(data)
+    errors = validate_reconstruction_dict(payload)
+    _require_or_raise(errors, "reconstruction")
+
+    events = [ChronoEvent(**dict(item)) for item in payload["events"]]
+    causal_edges = [CausalEdge(**dict(item)) for item in payload["causal_edges"]]
+    memory_edges = [MemoryEdge(**dict(item)) for item in payload["memory_edges"]]
+    geometry_edges = [GeometryEdge(**dict(item)) for item in payload["geometry_edges"]]
+    contradictions = [ChronoContradiction(**dict(item)) for item in payload["contradictions"]]
+
+    return ChronoReconstruction(
+        run_id=payload["run_id"],
+        input_hash=payload["input_hash"],
+        reconstruction_hash=payload["reconstruction_hash"],
+        events=events,
+        causal_edges=causal_edges,
+        memory_edges=memory_edges,
+        geometry_edges=geometry_edges,
+        contradictions=contradictions,
+        entropy_score=payload["entropy_score"],
+        information_score=payload["information_score"],
+        coherence=payload["coherence"],
+        stable=payload["stable"],
+        seed=payload["seed"],
+    )
+
+
+def receipt_to_dict(receipt: ChronoReceipt) -> dict:
+    return asdict(receipt)
+
+
+def receipt_from_dict(data: dict) -> ChronoReceipt:
+    payload = dict(data)
+    errors = validate_receipt_dict(payload)
+    _require_or_raise(errors, "receipt")
+    return ChronoReceipt(**payload)
+
+
+def load_json(path: str | Path) -> dict:
+    content = Path(path).read_text(encoding="utf-8")
+    loaded = json.loads(content)
+    if not isinstance(loaded, dict):
+        raise ValueError("JSON root must be an object.")
+    return loaded
+
+
+def write_json(path: str | Path, data: dict) -> None:
+    out = Path(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(dict(data), indent=2, sort_keys=True), encoding="utf-8")
