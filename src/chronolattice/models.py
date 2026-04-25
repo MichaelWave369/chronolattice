@@ -106,6 +106,7 @@ class ChronoReconstruction:
     bridge_profile: str = "balanced"
     bridge_threshold_mode: str = "profile"
     bridge_thresholds: dict[str, float] = field(default_factory=dict)
+    bridge_threshold_provenance: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
