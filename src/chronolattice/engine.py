@@ -16,7 +16,7 @@ class ChronoLatticeEngine:
         base = config or ChronoConfig(seed=DEFAULT_SEED)
         self.config = resolve_bridge_config(base)
 
-    def reconstruct_from_file(self, path: str | Path) -> ChronoReconstruction:
+    def reconstruct_from_file(self, path: str | Path, cli_manual_fields: set[str] | None = None) -> ChronoReconstruction:
         raw = json.loads(Path(path).read_text(encoding="utf-8"))
         run_id = raw.get("run_id")
         seed = int(raw.get("seed", self.config.seed))
@@ -33,7 +33,7 @@ class ChronoLatticeEngine:
             energy_jump_threshold=self.config.energy_jump_threshold,
             information_jump_threshold=self.config.information_jump_threshold,
         )
-        recon = reconstruct(events, config)
+        recon = reconstruct(events, config, cli_manual_fields=cli_manual_fields)
         if run_id:
             return ChronoReconstruction(
                 run_id=run_id,
@@ -53,11 +53,16 @@ class ChronoLatticeEngine:
                 bridge_profile=recon.bridge_profile,
                 bridge_threshold_mode=recon.bridge_threshold_mode,
                 bridge_thresholds=recon.bridge_thresholds,
+                bridge_threshold_provenance=recon.bridge_threshold_provenance,
             )
         return recon
 
-    def reconstruct_events(self, events: list[ChronoEvent] | list[dict]) -> ChronoReconstruction:
-        return reconstruct(events, self.config)
+    def reconstruct_events(
+        self,
+        events: list[ChronoEvent] | list[dict],
+        cli_manual_fields: set[str] | None = None,
+    ) -> ChronoReconstruction:
+        return reconstruct(events, self.config, cli_manual_fields=cli_manual_fields)
 
     def emit_receipt(self, reconstruction: ChronoReconstruction):
         return emit_receipt(reconstruction, self.config)

@@ -107,3 +107,10 @@ chronolattice reconstruct data/examples/missing_bridge_gap.json \
   --information-jump-threshold 0.70 \
   --out out/bridge_manual.json
 ```
+
+## Threshold Provenance
+ChronoLattice records where each effective bridge threshold came from:
+- profile preset
+- CLI manual override
+- manual default
+- programmatic config

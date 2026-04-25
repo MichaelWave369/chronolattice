@@ -6,6 +6,7 @@ from chronolattice.profiles import (
     get_bridge_profile,
     list_bridge_profiles,
     resolve_bridge_config,
+    resolve_bridge_threshold_provenance,
 )
 
 
@@ -74,3 +75,38 @@ def test_resolve_bridge_config_manual_mode_preserves_custom_values():
 def test_resolve_bridge_config_invalid_mode_raises_value_error():
     with pytest.raises(ValueError):
         resolve_bridge_config(ChronoConfig(seed=369369, bridge_threshold_mode="bad"))
+
+
+def test_resolve_bridge_threshold_provenance_profile_mode():
+    resolved = resolve_bridge_threshold_provenance(
+        ChronoConfig(seed=369369, bridge_threshold_mode="profile", bridge_profile="sensitive")
+    )
+    assert resolved == {
+        "bridge_gap_threshold": "profile:sensitive",
+        "coherence_drop_threshold": "profile:sensitive",
+        "energy_jump_threshold": "profile:sensitive",
+        "information_jump_threshold": "profile:sensitive",
+    }
+
+
+def test_resolve_bridge_threshold_provenance_manual_programmatic_mode():
+    resolved = resolve_bridge_threshold_provenance(ChronoConfig(seed=369369, bridge_threshold_mode="manual"))
+    assert resolved == {
+        "bridge_gap_threshold": "programmatic_config",
+        "coherence_drop_threshold": "programmatic_config",
+        "energy_jump_threshold": "programmatic_config",
+        "information_jump_threshold": "programmatic_config",
+    }
+
+
+def test_resolve_bridge_threshold_provenance_manual_cli_partial_mode():
+    resolved = resolve_bridge_threshold_provenance(
+        ChronoConfig(seed=369369, bridge_threshold_mode="manual"),
+        cli_manual_fields={"bridge_gap_threshold", "energy_jump_threshold"},
+    )
+    assert resolved == {
+        "bridge_gap_threshold": "manual_cli",
+        "coherence_drop_threshold": "manual_default",
+        "energy_jump_threshold": "manual_cli",
+        "information_jump_threshold": "manual_default",
+    }

@@ -53,6 +53,12 @@ BRIDGE_PROFILE_PHI_GUARDIAN = BridgeProfile(
 
 
 ALLOWED_THRESHOLD_MODES = {"profile", "manual"}
+BRIDGE_THRESHOLD_KEYS = (
+    "bridge_gap_threshold",
+    "coherence_drop_threshold",
+    "energy_jump_threshold",
+    "information_jump_threshold",
+)
 
 
 def list_bridge_profiles() -> list[BridgeProfile]:
@@ -91,5 +97,24 @@ def resolve_bridge_config(config: ChronoConfig) -> ChronoConfig:
         return apply_bridge_profile(config, config.bridge_profile)
     if mode == "manual":
         return replace(config, bridge_threshold_mode="manual")
+    allowed = ", ".join(sorted(ALLOWED_THRESHOLD_MODES))
+    raise ValueError(f"Invalid bridge_threshold_mode '{config.bridge_threshold_mode}'. Allowed values: {allowed}")
+
+
+def resolve_bridge_threshold_provenance(
+    config: ChronoConfig,
+    cli_manual_fields: set[str] | None = None,
+) -> dict[str, str]:
+    mode = config.bridge_threshold_mode.lower()
+    if mode == "profile":
+        source = f"profile:{config.bridge_profile}"
+        return {key: source for key in BRIDGE_THRESHOLD_KEYS}
+    if mode == "manual":
+        if cli_manual_fields is None:
+            return {key: "programmatic_config" for key in BRIDGE_THRESHOLD_KEYS}
+        return {
+            key: ("manual_cli" if key in cli_manual_fields else "manual_default")
+            for key in BRIDGE_THRESHOLD_KEYS
+        }
     allowed = ", ".join(sorted(ALLOWED_THRESHOLD_MODES))
     raise ValueError(f"Invalid bridge_threshold_mode '{config.bridge_threshold_mode}'. Allowed values: {allowed}")

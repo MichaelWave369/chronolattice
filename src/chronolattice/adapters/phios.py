@@ -81,5 +81,6 @@ def to_phios_payload(reconstruction: ChronoReconstruction) -> dict:
             "bridge_profile": reconstruction.bridge_profile,
             "bridge_threshold_mode": reconstruction.bridge_threshold_mode,
             "bridge_thresholds": reconstruction.bridge_thresholds,
+            "bridge_threshold_provenance": reconstruction.bridge_threshold_provenance,
         },
     }

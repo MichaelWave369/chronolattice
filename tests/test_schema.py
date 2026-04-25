@@ -83,3 +83,34 @@ def test_invalid_bridge_threshold_mode_returns_error():
     payload["bridge_threshold_mode"] = "invalid"
     errors = validate_reconstruction_dict(payload)
     assert any("bridge_threshold_mode" in err for err in errors)
+
+
+def test_bridge_threshold_provenance_dict_is_accepted():
+    data = json.loads(Path("data/examples/simple_timeline.json").read_text(encoding="utf-8"))
+    reconstruction = reconstruct(data["events"], ChronoConfig(seed=369369))
+    payload = reconstruction_to_dict(reconstruction)["payload"]
+    payload["bridge_threshold_provenance"] = {
+        "bridge_gap_threshold": "profile:balanced",
+        "coherence_drop_threshold": "profile:balanced",
+        "energy_jump_threshold": "profile:balanced",
+        "information_jump_threshold": "profile:balanced",
+    }
+    assert validate_reconstruction_dict(payload) == []
+
+
+def test_bridge_threshold_provenance_non_dict_rejected():
+    data = json.loads(Path("data/examples/simple_timeline.json").read_text(encoding="utf-8"))
+    reconstruction = reconstruct(data["events"], ChronoConfig(seed=369369))
+    payload = reconstruction_to_dict(reconstruction)["payload"]
+    payload["bridge_threshold_provenance"] = "bad"
+    errors = validate_reconstruction_dict(payload)
+    assert any("bridge_threshold_provenance must be an object" in err for err in errors)
+
+
+def test_bridge_threshold_provenance_non_string_values_rejected():
+    data = json.loads(Path("data/examples/simple_timeline.json").read_text(encoding="utf-8"))
+    reconstruction = reconstruct(data["events"], ChronoConfig(seed=369369))
+    payload = reconstruction_to_dict(reconstruction)["payload"]
+    payload["bridge_threshold_provenance"] = {"bridge_gap_threshold": 123}
+    errors = validate_reconstruction_dict(payload)
+    assert any("bridge_threshold_provenance values must be strings" in err for err in errors)

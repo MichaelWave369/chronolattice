@@ -158,13 +158,17 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if args.command == "reconstruct":
-        manual_values = [
-            args.bridge_gap_threshold,
-            args.coherence_drop_threshold,
-            args.energy_jump_threshold,
-            args.information_jump_threshold,
-        ]
-        manual_flags_used = any(v is not None for v in manual_values)
+        cli_manual_fields = {
+            name
+            for name, value in (
+                ("bridge_gap_threshold", args.bridge_gap_threshold),
+                ("coherence_drop_threshold", args.coherence_drop_threshold),
+                ("energy_jump_threshold", args.energy_jump_threshold),
+                ("information_jump_threshold", args.information_jump_threshold),
+            )
+            if value is not None
+        }
+        manual_flags_used = bool(cli_manual_fields)
         if args.bridge_threshold_mode == "profile" and manual_flags_used:
             print("Manual threshold flags require --bridge-threshold-mode manual")
             return 1
@@ -179,7 +183,7 @@ def main(argv: list[str] | None = None) -> int:
             information_jump_threshold=args.information_jump_threshold if args.information_jump_threshold is not None else 0.50,
         )
         engine = ChronoLatticeEngine(config)
-        recon = engine.reconstruct_from_file(args.path)
+        recon = engine.reconstruct_from_file(args.path, cli_manual_fields=cli_manual_fields)
         write_json(args.out, reconstruction_to_dict(recon))
         return 0
 
@@ -209,6 +213,7 @@ def main(argv: list[str] | None = None) -> int:
                     "bridge_profile": reconstruction.bridge_profile,
                     "bridge_threshold_mode": reconstruction.bridge_threshold_mode,
                     "bridge_thresholds": reconstruction.bridge_thresholds,
+                    "bridge_threshold_provenance": reconstruction.bridge_threshold_provenance,
                 },
                 indent=2,
                 sort_keys=True,

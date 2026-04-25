@@ -91,6 +91,12 @@ def test_cli_reconstruct_writes_sensitive_profile_metadata(tmp_path: Path):
     assert code == 0
     assert payload["payload"]["bridge_profile"] == "sensitive"
     assert payload["payload"]["bridge_threshold_mode"] == "profile"
+    assert payload["payload"]["bridge_threshold_provenance"] == {
+        "bridge_gap_threshold": "profile:sensitive",
+        "coherence_drop_threshold": "profile:sensitive",
+        "energy_jump_threshold": "profile:sensitive",
+        "information_jump_threshold": "profile:sensitive",
+    }
 
 
 def test_cli_bridge_profiles_lists_all_profiles(capsys):
@@ -129,6 +135,36 @@ def test_cli_reconstruct_manual_mode_writes_threshold_metadata(tmp_path: Path):
         "energy_jump_threshold": 0.8,
         "information_jump_threshold": 0.7,
     }
+    assert payload["bridge_threshold_provenance"] == {
+        "bridge_gap_threshold": "manual_cli",
+        "coherence_drop_threshold": "manual_cli",
+        "energy_jump_threshold": "manual_cli",
+        "information_jump_threshold": "manual_cli",
+    }
+
+
+def test_cli_reconstruct_manual_mode_partial_flags_set_default_provenance(tmp_path: Path):
+    out = tmp_path / "manual_partial.json"
+    code = main([
+        "reconstruct",
+        "data/examples/missing_bridge_gap.json",
+        "--bridge-threshold-mode",
+        "manual",
+        "--bridge-gap-threshold",
+        "0.75",
+        "--energy-jump-threshold",
+        "0.80",
+        "--out",
+        str(out),
+    ])
+    payload = json.loads(out.read_text(encoding="utf-8"))["payload"]
+    assert code == 0
+    assert payload["bridge_threshold_provenance"] == {
+        "bridge_gap_threshold": "manual_cli",
+        "coherence_drop_threshold": "manual_default",
+        "energy_jump_threshold": "manual_cli",
+        "information_jump_threshold": "manual_default",
+    }
 
 
 def test_cli_reconstruct_profile_mode_rejects_manual_threshold_flags(capsys):
@@ -145,3 +181,12 @@ def test_cli_reconstruct_profile_mode_rejects_manual_threshold_flags(capsys):
     out = capsys.readouterr().out
     assert code == 1
     assert "Manual threshold flags require --bridge-threshold-mode manual" in out
+
+
+def test_cli_inspect_includes_bridge_threshold_provenance(tmp_path: Path, capsys):
+    reconstruction_path = tmp_path / "reconstruction.json"
+    main(["reconstruct", "data/examples/simple_timeline.json", "--out", str(reconstruction_path)])
+    code = main(["inspect", str(reconstruction_path)])
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "bridge_threshold_provenance" in out

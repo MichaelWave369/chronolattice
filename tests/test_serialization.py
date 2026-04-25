@@ -52,8 +52,10 @@ def test_reconstruction_from_legacy_defaults_bridge_profile_mode_and_thresholds(
     legacy_payload.pop("bridge_profile", None)
     legacy_payload.pop("bridge_threshold_mode", None)
     legacy_payload.pop("bridge_thresholds", None)
+    legacy_payload.pop("bridge_threshold_provenance", None)
 
     restored = reconstruction_from_dict(legacy_payload)
     assert restored.bridge_profile == "balanced"
     assert restored.bridge_threshold_mode == "profile"
     assert restored.bridge_thresholds == {}
+    assert restored.bridge_threshold_provenance == {}

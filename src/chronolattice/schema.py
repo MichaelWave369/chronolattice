@@ -101,6 +101,19 @@ def validate_reconstruction_dict(data: dict) -> list[str]:
     if bridge_thresholds is not None and not isinstance(bridge_thresholds, dict):
         errors.append("reconstruction.bridge_thresholds must be an object")
 
+    bridge_threshold_provenance = data.get("bridge_threshold_provenance")
+    if bridge_threshold_provenance is not None:
+        if not isinstance(bridge_threshold_provenance, dict):
+            errors.append("reconstruction.bridge_threshold_provenance must be an object")
+        else:
+            for key, value in bridge_threshold_provenance.items():
+                if not isinstance(key, str):
+                    errors.append("reconstruction.bridge_threshold_provenance keys must be strings")
+                    break
+                if not isinstance(value, str):
+                    errors.append("reconstruction.bridge_threshold_provenance values must be strings")
+                    break
+
     bridge_gaps = data.get("bridge_gaps")
     if bridge_gaps is not None:
         if not isinstance(bridge_gaps, list):

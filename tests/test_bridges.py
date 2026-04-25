@@ -125,6 +125,12 @@ def test_phios_payload_includes_bridge_gaps_and_profile_mode_thresholds():
     assert payload["field"]["bridge_profile"] == "sensitive"
     assert payload["field"]["bridge_threshold_mode"] == "profile"
     assert isinstance(payload["field"]["bridge_thresholds"], dict)
+    assert payload["field"]["bridge_threshold_provenance"] == {
+        "bridge_gap_threshold": "profile:sensitive",
+        "coherence_drop_threshold": "profile:sensitive",
+        "energy_jump_threshold": "profile:sensitive",
+        "information_jump_threshold": "profile:sensitive",
+    }
 
 
 def test_sensitive_profile_detects_at_least_as_many_gaps_as_conservative():
@@ -172,4 +178,36 @@ def test_reconstruct_records_profile_and_manual_modes_and_thresholds():
         "coherence_drop_threshold": 0.3,
         "energy_jump_threshold": 0.8,
         "information_jump_threshold": 0.7,
+    }
+
+
+def test_reconstruct_default_profile_records_balanced_provenance():
+    data = _load("data/examples/simple_timeline.json")
+    result = reconstruct(data["events"], ChronoConfig(seed=369369))
+    assert result.bridge_threshold_provenance == {
+        "bridge_gap_threshold": "profile:balanced",
+        "coherence_drop_threshold": "profile:balanced",
+        "energy_jump_threshold": "profile:balanced",
+        "information_jump_threshold": "profile:balanced",
+    }
+
+
+def test_reconstruct_programmatic_manual_records_programmatic_provenance():
+    data = _load("data/examples/missing_bridge_gap.json")
+    result = reconstruct(
+        data["events"],
+        ChronoConfig(
+            seed=369369,
+            bridge_threshold_mode="manual",
+            bridge_gap_threshold=0.75,
+            coherence_drop_threshold=0.30,
+            energy_jump_threshold=0.80,
+            information_jump_threshold=0.70,
+        ),
+    )
+    assert result.bridge_threshold_provenance == {
+        "bridge_gap_threshold": "programmatic_config",
+        "coherence_drop_threshold": "programmatic_config",
+        "energy_jump_threshold": "programmatic_config",
+        "information_jump_threshold": "programmatic_config",
     }

@@ -52,3 +52,9 @@
   - Manual threshold CLI flags
   - Effective threshold metadata in reconstruction/PhiOS payload
   - Profile/manual resolution tests
+
+- **v0.2.3 — Threshold Provenance Metadata**
+  - `bridge_threshold_provenance` metadata
+  - CLI partial manual override provenance
+  - PhiOS provenance payload support
+  - Schema/serialization compatibility tests
