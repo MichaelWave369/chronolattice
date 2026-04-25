@@ -37,3 +37,5 @@ Equations remain stable across v0.1.x while artifact schemas evolve with explici
 
 Updated objective:
 `Θ* = arg min_Θ [ L_obs + αL_geometry + βL_causality + γL_entropy + δL_energy + εL_memory + ζL_info + ηL_coherence + κL_bridge ]`
+
+Bridge reports do not change the reconstruction objective; they summarize `L_bridge` evidence after reconstruction.

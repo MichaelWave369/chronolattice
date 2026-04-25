@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from ..constants import C_STAR
 from ..models import ChronoReconstruction
+from ..reports import build_bridge_gap_report
 
 
 def to_phios_payload(reconstruction: ChronoReconstruction) -> dict:
+    bridge_report = build_bridge_gap_report(reconstruction)
     nodes = [
         {
             "id": e.event_id,
@@ -82,5 +84,11 @@ def to_phios_payload(reconstruction: ChronoReconstruction) -> dict:
             "bridge_threshold_mode": reconstruction.bridge_threshold_mode,
             "bridge_thresholds": reconstruction.bridge_thresholds,
             "bridge_threshold_provenance": reconstruction.bridge_threshold_provenance,
+            "bridge_gap_report_summary": {
+                "total_bridge_gaps": bridge_report["total_bridge_gaps"],
+                "severity_counts": bridge_report["severity_counts"],
+                "gap_type_counts": bridge_report["gap_type_counts"],
+                "operator_summary": bridge_report["operator_summary"],
+            },
         },
     }

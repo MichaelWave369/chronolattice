@@ -114,3 +114,21 @@ ChronoLattice records where each effective bridge threshold came from:
 - CLI manual override
 - manual default
 - programmatic config
+
+## Bridge Gap Reports
+Bridge Gap Reports summarize missing transition evidence across:
+- severity
+- gap type
+- affected actors
+- suggested missing event types
+- threshold metadata
+- operator recommendations
+
+```bash
+chronolattice reconstruct data/examples/missing_bridge_gap.json \
+  --bridge-profile sensitive \
+  --out out/bridge_sensitive.json
+
+chronolattice bridge-report out/bridge_sensitive.json \
+  --out out/bridge_report.json
+```

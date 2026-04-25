@@ -58,3 +58,10 @@
   - CLI partial manual override provenance
   - PhiOS provenance payload support
   - Schema/serialization compatibility tests
+
+- **v0.2.4 — Bridge Gap Reports**
+  - Bridge report builder
+  - `bridge-report` CLI command
+  - Wrapped bridge report artifact
+  - PhiOS report summary
+  - Bridge report schema validation

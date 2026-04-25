@@ -126,6 +126,39 @@ def validate_reconstruction_dict(data: dict) -> list[str]:
     return errors
 
 
+def validate_bridge_report_dict(data: dict) -> list[str]:
+    required = [
+        "report_id",
+        "run_id",
+        "reconstruction_hash",
+        "bridge_profile",
+        "bridge_threshold_mode",
+        "bridge_thresholds",
+        "bridge_threshold_provenance",
+        "coherence",
+        "stable",
+        "total_bridge_gaps",
+        "severity_counts",
+        "gap_type_counts",
+        "suggested_event_type_counts",
+        "actor_gap_counts",
+        "top_bridge_gaps",
+        "operator_summary",
+        "recommendations",
+    ]
+    errors = require_fields(data, required, "bridge_report")
+    if errors:
+        return errors
+
+    if not isinstance(data.get("severity_counts"), dict):
+        errors.append("bridge_report.severity_counts must be an object")
+    if not isinstance(data.get("top_bridge_gaps"), list):
+        errors.append("bridge_report.top_bridge_gaps must be a list")
+    if not isinstance(data.get("recommendations"), list):
+        errors.append("bridge_report.recommendations must be a list")
+    return errors
+
+
 def validate_receipt_dict(data: dict) -> list[str]:
     required = [
         "receipt_id",

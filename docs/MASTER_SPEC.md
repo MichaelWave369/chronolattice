@@ -62,3 +62,8 @@ Threshold provenance supports auditability and deterministic replay.
 
 - Profile mode for common deterministic presets.
 - Manual mode for explicit operator threshold control.
+
+### Bridge Gap Reports
+- Deterministic report layer over detected bridge gaps.
+- Does not synthesize new events.
+- Supports operator review and PhiOS summaries.

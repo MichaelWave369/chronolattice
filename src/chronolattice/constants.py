@@ -10,5 +10,6 @@ VERSION = "0.1.0"
 ARTIFACT_KIND_RECONSTRUCTION = "chronolattice.reconstruction"
 ARTIFACT_KIND_RECEIPT = "chronolattice.receipt"
 ARTIFACT_KIND_PHIOS_PAYLOAD = "chronolattice.phios.payload"
+ARTIFACT_KIND_BRIDGE_REPORT = "chronolattice.bridge_gap.report"
 SCHEMA_VERSION = "0.1"
 SUPPORTED_SCHEMA_VERSIONS = ("0.1",)

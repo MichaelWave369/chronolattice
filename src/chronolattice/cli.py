@@ -8,6 +8,7 @@ from pathlib import Path
 from .adapters.phios import to_phios_payload
 from .compat import wrap_artifact
 from .constants import (
+    ARTIFACT_KIND_BRIDGE_REPORT,
     ARTIFACT_KIND_PHIOS_PAYLOAD,
     ARTIFACT_KIND_RECEIPT,
     ARTIFACT_KIND_RECONSTRUCTION,
@@ -18,9 +19,11 @@ from .engine import ChronoLatticeEngine
 from .migrations import artifact_migration_status, migrate_artifact
 from .normalization import normalize_artifact_envelope
 from .profiles import list_bridge_profiles
+from .reports import bridge_report_artifact
 from .models import ChronoConfig
 from .schema import (
     validate_artifact_envelope,
+    validate_bridge_report_dict,
     validate_event_dict,
     validate_receipt_dict,
     validate_reconstruction_dict,
@@ -64,6 +67,13 @@ def _validate_input(path: str | Path) -> tuple[bool, list[str]]:
         errors.extend(validate_artifact_envelope(data, ARTIFACT_KIND_RECEIPT))
         if not errors:
             errors.extend(validate_receipt_dict(data["payload"]))
+        return (len(errors) == 0), errors
+
+    # wrapped bridge report
+    if data.get("kind") == ARTIFACT_KIND_BRIDGE_REPORT:
+        errors.extend(validate_artifact_envelope(data, ARTIFACT_KIND_BRIDGE_REPORT))
+        if not errors:
+            errors.extend(validate_bridge_report_dict(data["payload"]))
         return (len(errors) == 0), errors
 
     # legacy flat reconstruction
@@ -120,6 +130,10 @@ def build_parser() -> argparse.ArgumentParser:
     bridge_gaps.add_argument("reconstruction_path")
     bridge_gaps.add_argument("--severity", choices=["low", "medium", "high"])
     bridge_gaps.add_argument("--type", dest="gap_type")
+
+    bridge_report = sub.add_parser("bridge-report")
+    bridge_report.add_argument("reconstruction_path")
+    bridge_report.add_argument("--out")
 
     migration_status = sub.add_parser("migration-status")
     migration_status.add_argument("path")
@@ -234,6 +248,15 @@ def main(argv: list[str] | None = None) -> int:
         if args.gap_type:
             gaps = [g for g in gaps if g["gap_type"] == args.gap_type]
         print(json.dumps(gaps, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "bridge-report":
+        reconstruction = reconstruction_from_dict(load_json(args.reconstruction_path))
+        report = bridge_report_artifact(reconstruction)
+        if args.out:
+            write_json(args.out, report)
+        else:
+            print(json.dumps(report, indent=2, sort_keys=True))
         return 0
 
     if args.command == "migration-status":
