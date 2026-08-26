@@ -1,0 +1,43 @@
+{
+  "schema": "parallax.pass13.out_of_sample_mapping.v1",
+  "domain": "temporal-causal-reconstruction",
+  "repository": "MichaelWave369/chronolattice",
+  "baseMainSha": "ce9d1061560bfed8cd0de4f8adf121c42e89c735",
+  "candidate": {
+    "workingIdentifier": "parallax.core.candidate.v0",
+    "sha256": "7df6b6ed596862c5d0aad794039424d4487cdb1d3cb43d2a50ede548dda6f96e",
+    "frozenBeforeDomainSelection": true
+  },
+  "mappings": {
+    "P1_NATIVE_AUTHORITY": {
+      "nativeWitness": "ChronoReconstruction and ChronoReceipt remain authoritative native dataclasses; the Pass-13 probe is read-only.",
+      "requiredBehavior": "Input events and native reconstruction state are not rewritten by conformance observation."
+    },
+    "P2_EXACT_SUBJECT_IDENTITY": {
+      "nativeWitness": "stable_hash, input_hash, reconstruction_hash, run_id, and receipt_id deterministically bind exact reconstruction state.",
+      "requiredBehavior": "Changing an event changes input/reconstruction identity and downstream receipt identity."
+    },
+    "P3_EVIDENCE_TRUTH_SEPARATION": {
+      "nativeWitness": "ChronoLattice explicitly describes reconstruction rather than full physical simulation; bridge reports advise review before trusting a reconstruction.",
+      "requiredBehavior": "Deterministic reconstruction/receipt identity is not interpreted as proof that inferred history is factual truth."
+    },
+    "P4_EXPLICIT_HUMAN_BOUNDARY": {
+      "nativeWitness": "Missing bridge events are emitted as gaps, hints, and operator recommendations instead of being inserted into observed event history.",
+      "reservedTransition": "promoting an inferred missing transition into asserted event history",
+      "requiredBehavior": "The engine may suggest; an operator must supply/accept new evidence before history changes."
+    },
+    "P5_AUTHORITY_PHASE_SEPARATION": {
+      "nativeWitness": "Reconstruction, contradiction/gap evidence, operator recommendations, and receipts are separate outputs; receipt generation performs no follow-on action.",
+      "requiredBehavior": "A receipt records a reconstruction and a recommendation recommends; neither becomes permission or execution."
+    },
+    "P6_FAIL_CLOSED_TRANSITION": {
+      "nativeWitness": "Unsupported artifact schema versions and undefined migrations raise errors instead of being silently coerced.",
+      "requiredBehavior": "Unknown/unsupported migration transitions block."
+    },
+    "P7_IMMUTABLE_RECEIPT_LINEAGE": {
+      "nativeWitness": "Frozen dataclasses plus input/reconstruction hashes and deterministic receipt IDs preserve historical identity across later reruns.",
+      "requiredBehavior": "A later changed reconstruction produces new identity without rewriting the earlier receipt."
+    }
+  },
+  "claimBoundary": "This mapping tests the frozen seven-principle candidate against an unseen derivation domain. It does not make ChronoLattice a Parallax implementation, certify its scientific claims, or canonize the core."
+}
