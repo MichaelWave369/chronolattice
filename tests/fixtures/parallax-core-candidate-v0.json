@@ -1,0 +1,78 @@
+{
+  "schema": "parallax.core_semantics_candidate.v0",
+  "workingIdentifier": "parallax.core.candidate.v0",
+  "status": "NONCANONICAL_PASS12_CANDIDATE",
+  "sourceDomains": [
+    "canonical creative interoperability profile",
+    "branch-proven evidence/governance/release trial"
+  ],
+  "primitiveCount": 7,
+  "primitives": [
+    {
+      "id": "P1_NATIVE_AUTHORITY",
+      "name": "Native Authority",
+      "normative": "A Parallax profile MUST NOT replace or silently rewrite the authoritative native state/format of a participating system. Native authorities remain explicit.",
+      "creative_witness": "Creative spec §3.3 Native authority and §7 Rollback policy.",
+      "governance_witness": "Pass 11: OpenField owns evidence verification; PRCE owns approval verification; Phi-Pantheon BootstrapStatus.bootable owns native release readiness."
+    },
+    {
+      "id": "P2_EXACT_SUBJECT_IDENTITY",
+      "name": "Exact Subject Identity",
+      "normative": "Consequential handoffs, decisions, or custody transitions MUST bind to an exact subject state using a deterministic identity. A reference to a mutable name alone is insufficient.",
+      "creative_witness": "Creative spec §3.1 actual-byte SHA-256 verification plus artifact/RenderPlan/bridge continuity.",
+      "governance_witness": "Pass 11 exact OpenField review-bundle SHA-256 bound into the exact PRCE requested_action SHA-256."
+    },
+    {
+      "id": "P3_EVIDENCE_TRUTH_SEPARATION",
+      "name": "Evidence / Truth Separation",
+      "normative": "Identity, schema validity, signatures, receipts, and evidence MAY support a claim but MUST NOT be promoted into truth, authorship, rights, safety, or release authority by implication.",
+      "creative_witness": "Creative spec §3.1: hash proves byte identity only, not authorship/rights/truth/safety/permission.",
+      "governance_witness": "Pass 11 review bundle records cryptographicValidity=not-evaluated-by-projection and evidenceTruth=not-established."
+    },
+    {
+      "id": "P4_EXPLICIT_HUMAN_BOUNDARY",
+      "name": "Explicit Human Boundary",
+      "normative": "A consequential transition that the profile reserves for a person MUST require an explicit human action/decision. Evidence or machine policy MUST NOT silently substitute for that decision.",
+      "creative_witness": "Creative spec §3.2 requiresUserAction=true.",
+      "governance_witness": "Pass 11 PRCE native signed human approval decides the exact requested action."
+    },
+    {
+      "id": "P5_AUTHORITY_PHASE_SEPARATION",
+      "name": "Authority Phase Separation",
+      "normative": "Evidence, review, decision, permission, implementation ability, execution, and receipt MUST remain distinguishable. Permission MUST NOT imply an adapter; a receipt MUST NOT imply permission.",
+      "creative_witness": "Creative spec §3.2 no render/network/subprocess/auto-import authority and §3.4 receipt does not authorize.",
+      "governance_witness": "Pass 11 review bundle authority=NONE; capability adapterExists=false; approval cannot manufacture Pantheon bootability."
+    },
+    {
+      "id": "P6_FAIL_CLOSED_TRANSITION",
+      "name": "Fail-Closed Transition",
+      "normative": "When an exact identity, required authority, freshness rule, or native gate does not match, the affected transition MUST block rather than degrade into a warning-and-continue path.",
+      "creative_witness": "Creative spec §3.1 hash mismatch MUST fail closed and §3.5 stale/equivocation rejection.",
+      "governance_witness": "Pass 11 altered review bundle breaks approval binding; native Pantheon block cannot be overridden."
+    },
+    {
+      "id": "P7_IMMUTABLE_RECEIPT_LINEAGE",
+      "name": "Immutable Receipt / Lineage",
+      "normative": "Historical receipts, identities, and lineage MUST remain reconstructable. Rollback or later decisions MUST NOT rewrite historical hashes or retroactively reinterpret a prior receipt as authority.",
+      "creative_witness": "Creative spec §3.4 Receipts and §7 Rollback policy.",
+      "governance_witness": "Pass 11 preserves evidence/receipt refs and exact approval subject binding; changed subject stales approval."
+    }
+  ],
+  "nonGoals": [
+    "universal mega-envelope",
+    "replacement of native application models",
+    "mandatory parallax.capability.v1 packet in every profile",
+    "mandatory planRevision field in every profile",
+    "automatic promotion or execution",
+    "truth or rights certification",
+    "canonical protocol adoption"
+  ],
+  "interpretation": {
+    "MAY": "permission",
+    "CAN": "implemented ability",
+    "SHOULD": "policy recommendation",
+    "DID": "receipt / observed outcome",
+    "SUPPORTS": "evidence relation",
+    "DECIDES": "explicit human authority when reserved to a human"
+  }
+}
