@@ -132,3 +132,38 @@ chronolattice reconstruct data/examples/missing_bridge_gap.json \
 chronolattice bridge-report out/bridge_sensitive.json \
   --out out/bridge_report.json
 ```
+
+
+## Public React lattice explorer
+
+After merging the website pull request and enabling **Settings → Pages → Build and deployment → GitHub Actions**, the public site is available at:
+
+https://michaelwave369.github.io/chronolattice/
+
+The site is a static React/Vite **visualization companion**, not a Python runtime. It renders the project's five sample event streams, browses event properties, and displays imported ChronoLattice reconstruction artifacts with their actual causal/memory edges, contradictions, bridge gaps, and coherence metrics. For raw event inputs, displayed edges are explicitly **sequence/memory visualization hints**, not engine-derived inferences. Imported data never leaves the browser; the site does not verify hashes or run reconstructions, simulations, bridge detection, or deterministic receipts.
+
+### Run the website locally
+
+    cd web
+    npm install
+    npm run dev
+
+### Make a real reconstruction to import
+
+    python -m pip install -e ".[dev]"
+    chronolattice reconstruct data/examples/missing_bridge_gap.json --out out/bridge_reconstruction.json
+    chronolattice receipt out/bridge_reconstruction.json --out out/bridge_receipt.json
+    chronolattice bridge-report out/bridge_reconstruction.json --out out/bridge_report.json
+
+Import the reconstruction JSON into the site's Lattice View. Raw example traces also work as visualization inputs. Only the Python engine produces authoritative project calculations and versioned artifacts. Receipt hash fields are shown as imported data, not verified client-side.
+
+### Publish the site
+
+1. Merge the website pull request into `main`.
+2. Go to repository **Settings → Pages → Build and deployment** and choose **GitHub Actions**.
+3. The Pages workflow builds `web/` on pushes affecting it, and can also be started manually from Actions.
+4. Open https://michaelwave369.github.io/chronolattice/ once the deploy succeeds.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
